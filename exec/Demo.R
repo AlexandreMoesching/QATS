@@ -1,7 +1,7 @@
 # _______________________________________________________________________________
 ####    Parameters                                                          ####
 rm(list = ls())
-library(rHMM)
+library(QATS)
 
 # User selected parameters
 m <- 5

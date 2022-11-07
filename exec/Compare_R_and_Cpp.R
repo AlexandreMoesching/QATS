@@ -1,5 +1,5 @@
 rm(list = ls())
-library("rHMM")
+library("QATS")
 
 n <- 2e2+1; m <- 5; sigma <- 0.5; K <- 10
 opts <- list(n.rep = 1, rotate = FALSE)

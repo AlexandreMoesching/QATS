@@ -1,5 +1,5 @@
 rm(list = ls())
-library("rHMM")
+library("QATS")
 
 n <- 1e5 + 1; m <- 5; K <- 10; sigma <- 0.5
 
@@ -18,7 +18,7 @@ summary(res$res_QATS)
 ################################
 
 rm(list = ls())
-library("rHMM")
+library("QATS")
 
 n <- 1e5 + 1; m <- 5; K <- 10; sigma <- 0.5
 
