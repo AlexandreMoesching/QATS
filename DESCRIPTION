@@ -1,0 +1,47 @@
+Package: rHMM
+Title: An Efficient Decoding Procedure for Hidden Markov Models
+Version: 1.1
+Authors@R: c(
+    person("Alexandre", "Moesching", 
+    email = "alexandre.moesching@uni-goettignen.de", 
+    role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-8270-3724")),
+    person("Housen", "Li", 
+    email = "housen.li@uni-goettignen.de", 
+    role = c("aut")),
+    person("Axel", "Munk", 
+    email = "amunk1@gwdg.de", 
+    role = c("aut")))
+Description: In hidden Markov models, one observes a noisy version of an 
+    unobservable finite-state Markov chain. One of the main components of hidden 
+    Markov models is to decode that signal, that is to estimate the sequence of 
+    hidden states at the origin of the observation sequence. Existing decoding 
+    algorithms such as Viterbi (1967) algorithm have computational complexity at 
+    best linear in the size of the observed sequence, and sub-quadratic in the 
+    size of the state space. Assuming that the observation sequence is stored as 
+    specific cumulative sums, we present Quick Adaptive Ternary Segmentation 
+    (QATS), a procedure which decodes the hidden sequence in polylogarithmic 
+    computational complexity in the size of the sequence, and cubic in the size 
+    of the state space. In essence, the estimated sequence of states 
+    sequentially maximizes local likelihood scores among all local paths with at 
+    most three segments. The latter search is performed only approximately using 
+    an adaptive search procedure. The resulting sequence is admissible in the 
+    sense that all transitions occur with positive probability.
+Year: 2022
+URL: https://github.com/AlexandreMoesching/rHMM.git
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+Imports: 
+    graphics,
+    grDevices,
+    plot3D,
+    Rcpp,
+    stats
+LinkingTo:
+    Rcpp,
+    RcppArmadillo
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+RoxygenNote: 7.2.1
