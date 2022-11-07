@@ -1,6 +1,6 @@
-Package: rHMM
+Package: QATS
 Title: An Efficient Decoding Procedure for Hidden Markov Models
-Version: 1.1
+Version: 1.2
 Authors@R: c(
     person("Alexandre", "Moesching", 
     email = "alexandre.moesching@uni-goettignen.de", 
@@ -28,7 +28,7 @@ Description: In hidden Markov models, one observes a noisy version of an
     an adaptive search procedure. The resulting sequence is admissible in the 
     sense that all transitions occur with positive probability.
 Year: 2022
-URL: https://github.com/AlexandreMoesching/rHMM.git
+URL: https://github.com/AlexandreMoesching/QATS.git
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
