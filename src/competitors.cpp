@@ -50,9 +50,13 @@ List Viterbi_timer_cpp(double n_rep,
 //' @return Estimated sequence
 //' @keywords internal
 // [[Rcpp::export]]
-void Viterbi_cpp(arma::ivec& xx, arma::imat& zeta, arma::mat& rho,
-                 const int& n, const int& m, const arma::vec& logPi,
-                 const arma::mat& qq, const arma::mat& g_mseq) {
+void Viterbi_cpp(arma::ivec& xx,
+                 arma::imat& zeta,
+                 arma::mat& rho,
+                 const int& n, const int& m,
+                 const arma::vec& logPi,
+                 const arma::mat& qq,
+                 const arma::mat& g_mseq) {
   // Declaration
   arma::vec tmp(m);
   // Forward pass
@@ -146,6 +150,7 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
     hh         = C2 * g_mseq        + C3   * logprob_x;
     rho.col(0) = C2 * g_mseq.col(0) + C234 * logprob_x.col(0);
   }
+  // Last pass forward
   if (n > 1) {
     for (int k = 1; k < n; k++) {
       for (int i = 0; i < m; i++) {
@@ -164,6 +169,105 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
   }
   // Return result
   return xx + 1;
+}
+
+//' PMAP-classifier, timing in C++
+//'
+//' @param n Length of the observation sequence
+//' @param m Cardinality of the state space
+//' @param Pi Initial distribution
+//' @param pp Transition matrix
+//' @param f_mseq Densities of the emission distributions
+//'
+//' @return Estimated sequence
+//' @keywords internal
+// [[Rcpp::export]]
+List PMAP_timer_cpp(double n_rep,
+                    int n, int m,
+                    const arma::vec& Pi,
+                    const arma::mat& pp,
+                    const arma::mat& f_mseq) {
+  // Preallocation
+  arma::ivec xx(n, arma::fill::zeros);
+  arma::mat alpha_hat(m, n), alpha_bar(m, n);
+  arma::mat  beta_hat(m, n),  beta_bar(m, n, arma::fill::ones);
+  arma::vec cc_inv(n);
+  // Get starting time point
+  auto start = std::chrono::high_resolution_clock::now();
+  // Do stuff
+  for (int i = 0; i < n_rep; i++) {
+    PMAP_cpp(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv, n, m, Pi, pp, f_mseq);
+  }
+  // Get ending time point
+  auto stop = std::chrono::high_resolution_clock::now();
+  // Compute difference
+  std::chrono::duration<double> time_s = stop - start;
+  std::chrono::duration<double, std::micro> time_ms = stop - start;
+  // Return
+  return List::create(Named("xx") = xx + 1,
+                      Named("time") = time_s.count()/n_rep,
+                      Named("time_ms") = time_ms.count()/n_rep);
+}
+
+//' PMAP-classifier
+//'
+//' @param n Length of the observation sequence
+//' @param m Cardinality of the state space
+//' @param Pi Initial distribution
+//' @param pp Transition matrix
+//' @param f_mseq Densities of the emission distributions
+//'
+//' @return Estimated sequence
+//' @keywords internal
+// [[Rcpp::export]]
+void PMAP_cpp(arma::ivec& xx,
+              arma::mat& alpha_hat,
+              arma::mat& alpha_bar,
+              arma::mat& beta_hat,
+              arma::mat& beta_bar,
+              arma::vec& cc_inv,
+              const int& n,
+              const int& m,
+              const arma::vec& Pi,
+              const arma::mat& pp,
+              const arma::mat& f_mseq) {
+  // Declaration
+  arma::vec tmp(m);
+
+  // Pass forward
+  alpha_bar.col(0) = f_mseq.col(0) % Pi;                                        // (\bar{alpha}_i(0))
+  cc_inv[0] = sum(alpha_bar.col(0));                                            // c_0^{-1}
+  alpha_hat.col(0) = alpha_bar.col(0) / cc_inv[0];                              // (\hat{alpha}_i(0))
+  if (n > 1) {
+    for (int k = 1; k < n; k++) {
+      for (int i = 0; i < m; i++) {
+        alpha_bar(i, k) = f_mseq(i, k) * sum(pp.col(i) % alpha_hat.col(k - 1)); // (\bar{alpha}_i(k))
+      }
+      cc_inv[k] = sum(alpha_bar.col(k));                                        // c_k^{-1}
+      alpha_hat.col(k) = alpha_bar.col(k) / cc_inv[k];                          // (\hat{alpha}_i(0))
+    }
+  }
+
+  // Pass backward
+  beta_hat.col(n - 1) = beta_bar.col(n - 1) / cc_inv[n - 1];
+  if (n > 1) {
+    for (int k = n - 2; k >= 0; k--) {
+      for (int i = 0; i < m; i++) {
+        beta_bar(i, k) =
+          sum(
+            (arma::vectorise(pp.row(i)) % f_mseq.col(k + 1)) %
+              beta_hat.col(k + 1)
+          );                                                                    // (\bar{beta}_i(k))
+      }
+      beta_hat.col(k) = beta_bar.col(k) / cc_inv[k];                            // (\hat{beta}_i(k))
+    }
+  }
+
+  // Constructing the solution
+  for (int k = 0; k < n; k++) {
+    tmp = alpha_hat.col(k) % beta_hat.col(k);
+    xx[k] = tmp.index_max();
+  }
 }
 
 //' K-segmentation

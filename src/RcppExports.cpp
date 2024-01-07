@@ -87,6 +87,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// PMAP_timer_cpp
+List PMAP_timer_cpp(double n_rep, int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
+RcppExport SEXP _QATS_PMAP_timer_cpp(SEXP n_repSEXP, SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP f_mseqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type n_rep(n_repSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type f_mseq(f_mseqSEXP);
+    rcpp_result_gen = Rcpp::wrap(PMAP_timer_cpp(n_rep, n, m, Pi, pp, f_mseq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// PMAP_cpp
+void PMAP_cpp(arma::ivec& xx, arma::mat& alpha_hat, arma::mat& alpha_bar, arma::mat& beta_hat, arma::mat& beta_bar, arma::vec& cc_inv, const int& n, const int& m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
+RcppExport SEXP _QATS_PMAP_cpp(SEXP xxSEXP, SEXP alpha_hatSEXP, SEXP alpha_barSEXP, SEXP beta_hatSEXP, SEXP beta_barSEXP, SEXP cc_invSEXP, SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP f_mseqSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::ivec& >::type xx(xxSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type alpha_hat(alpha_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type alpha_bar(alpha_barSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type beta_hat(beta_hatSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type beta_bar(beta_barSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type cc_inv(cc_invSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type f_mseq(f_mseqSEXP);
+    PMAP_cpp(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv, n, m, Pi, pp, f_mseq);
+    return R_NilValue;
+END_RCPP
+}
 // K_segmentation_cpp
 arma::mat K_segmentation_cpp(int K_max, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& g_mseq);
 RcppExport SEXP _QATS_K_segmentation_cpp(SEXP K_maxSEXP, SEXP nSEXP, SEXP mSEXP, SEXP logPiSEXP, SEXP qqSEXP, SEXP g_mseqSEXP) {
@@ -215,6 +251,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_QATS_Viterbi_timer_cpp", (DL_FUNC) &_QATS_Viterbi_timer_cpp, 6},
     {"_QATS_Viterbi_cpp", (DL_FUNC) &_QATS_Viterbi_cpp, 8},
     {"_QATS_G_classifier_cpp", (DL_FUNC) &_QATS_G_classifier_cpp, 12},
+    {"_QATS_PMAP_timer_cpp", (DL_FUNC) &_QATS_PMAP_timer_cpp, 6},
+    {"_QATS_PMAP_cpp", (DL_FUNC) &_QATS_PMAP_cpp, 11},
     {"_QATS_K_segmentation_cpp", (DL_FUNC) &_QATS_K_segmentation_cpp, 6},
     {"_QATS_H1_dbl_cpp", (DL_FUNC) &_QATS_H1_dbl_cpp, 7},
     {"_QATS_H2_vec_cpp", (DL_FUNC) &_QATS_H2_vec_cpp, 7},

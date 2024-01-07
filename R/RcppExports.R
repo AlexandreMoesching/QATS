@@ -71,6 +71,34 @@ G_classifier_cpp <- function(C1, C2, C3, C4, n, m, Pi, logPi, pp, qq, f_mseq, g_
     .Call(`_QATS_G_classifier_cpp`, C1, C2, C3, C4, n, m, Pi, logPi, pp, qq, f_mseq, g_mseq)
 }
 
+#' PMAP-classifier, timing in C++
+#'
+#' @param n Length of the observation sequence
+#' @param m Cardinality of the state space
+#' @param Pi Initial distribution
+#' @param pp Transition matrix
+#' @param f_mseq Densities of the emission distributions
+#'
+#' @return Estimated sequence
+#' @keywords internal
+PMAP_timer_cpp <- function(n_rep, n, m, Pi, pp, f_mseq) {
+    .Call(`_QATS_PMAP_timer_cpp`, n_rep, n, m, Pi, pp, f_mseq)
+}
+
+#' PMAP-classifier
+#'
+#' @param n Length of the observation sequence
+#' @param m Cardinality of the state space
+#' @param Pi Initial distribution
+#' @param pp Transition matrix
+#' @param f_mseq Densities of the emission distributions
+#'
+#' @return Estimated sequence
+#' @keywords internal
+PMAP_cpp <- function(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv, n, m, Pi, pp, f_mseq) {
+    invisible(.Call(`_QATS_PMAP_cpp`, xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv, n, m, Pi, pp, f_mseq))
+}
+
 #' K-segmentation
 #'
 #' @param K_max Maximum number of constant pieces
