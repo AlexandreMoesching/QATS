@@ -245,6 +245,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compare_cpp
+List compare_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, double sigma, int d0, int n_seeds, bool rotate, int n_rep, int n_sim);
+RcppExport SEXP _QATS_compare_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
+    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< int >::type d0(d0SEXP);
+    Rcpp::traits::input_parameter< int >::type n_seeds(n_seedsSEXP);
+    Rcpp::traits::input_parameter< bool >::type rotate(rotateSEXP);
+    Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
+    Rcpp::traits::input_parameter< int >::type n_sim(n_simSEXP);
+    rcpp_result_gen = Rcpp::wrap(compare_cpp(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_QATS_QATS_timer_cpp", (DL_FUNC) &_QATS_QATS_timer_cpp, 11},
@@ -260,6 +280,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_QATS_sample_norm_HMM_export_cpp", (DL_FUNC) &_QATS_sample_norm_HMM_export_cpp, 5},
     {"_QATS_QATS_nseeds_norm_cpp", (DL_FUNC) &_QATS_QATS_nseeds_norm_cpp, 10},
     {"_QATS_QATS_vs_Viterbi_norm_cpp", (DL_FUNC) &_QATS_QATS_vs_Viterbi_norm_cpp, 10},
+    {"_QATS_compare_cpp", (DL_FUNC) &_QATS_compare_cpp, 10},
     {NULL, NULL, 0}
 };
 

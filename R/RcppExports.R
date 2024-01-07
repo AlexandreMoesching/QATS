@@ -134,6 +134,9 @@ sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, sigma) {
     .Call(`_QATS_sample_norm_HMM_export_cpp`, n, m, Pi, pp, sigma)
 }
 
+#' Generate a sample and estimate paths using QATS, PMAP and Viterbi
+NULL
+
 #' Generate a sample and estimate paths using QATS and different seeds
 #'
 #' @param n Length of the sequence
@@ -173,5 +176,9 @@ QATS_nseeds_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_
 #' @export
 QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
     .Call(`_QATS_QATS_vs_Viterbi_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+}
+
+QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
+    .Call(`_QATS_compare_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 
