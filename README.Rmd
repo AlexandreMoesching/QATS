@@ -89,6 +89,14 @@ xx.1 <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
 ```
 
+To use the PMAP algorithm in order to estimate the hidden sequence, simply do:
+
+```{r}
+res <- PMAP.CPP(par)
+xx.1.PMAP <- res$xx
+(tt <- as.vector(res$time)) # Time in seconds
+```
+
 To use QATS, run:
 
 ```{r}
@@ -106,7 +114,7 @@ display.result(xx.0, xx.1, xx.2, par)
 The following line shows that Viterbi and QATS produce the same path, and that both did not estimate correctly 5 states out of the 1001.
 
 ```{r}
-c(sum(xx.0 != xx.1), sum(xx.1 != xx.2))
+c(sum(xx.0 != xx.1), sum(xx.1 != xx.1.PMAP), sum(xx.1 != xx.2))
 ```
 
 ## Comparison of QATS, Viterbi, risk-based estimators and K-segmentation
@@ -130,31 +138,37 @@ xx <- matrix(res$xx, nrow = 1)
 tt <- as.vector(res$time)
 rownames(xx)[1] <- names(tt)[1] <- "Viterbi"
 
-# 2. Mointwise MAP
+# 2. Pointwise MAP - manual
+res <- PMAP.CPP(par)
+xx <- rbind(xx, res$xx)
+tt <- c(tt, as.vector(res$time))
+rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "pMAP-man"
+
+# 3. Pointwise MAP
 res <- G_classifier.CPP(par, 1, 0, 0, 0)
 xx <- rbind(xx, res$xx)
 tt <- c(tt, as.vector(res$time))
 rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "pMAP"
 
-# 3. Maximum prior probability
+# 4. Maximum prior probability
 res <- G_classifier.CPP(par, 0, 0, 0, 1)
 xx <- rbind(xx, res$xx)
 tt <- c(tt, as.vector(res$time))
 rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "MPP"
 
-# 4. Marginal prior mode
+# 5. Marginal prior mode
 res <- G_classifier.CPP(par, 0, 0, 1, 0)
 xx <- rbind(xx, res$xx)
 tt <- c(tt, as.vector(res$time))
 rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "MPM"
 
-# 5. Generalized Viterbi
+# 6. Generalized Viterbi
 res <- G_classifier.CPP(par, 0, 1, 0, 1)
 xx <- rbind(xx, res$xx)
 tt <- c(tt, as.vector(res$time))
 rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "gViterbi"
 
-# 6. K-segmentation
+# 7. K-segmentation
 K_max <- K + 4
 res <- K_segmentation.CPP(par, K_max)
 xx <- rbind(xx, res$xx)
@@ -163,7 +177,7 @@ rownames(xx)[length(tt) - ((K_max - 1):0)] <-
   names(tt)[length(tt) - ((K_max - 1):0)] <-
   paste(rep("K-seg", K_max), 1:K_max)
 
-# 7. QATS
+# 8. QATS
 res <- QATS.CPP(par)
 xx <- rbind(xx, res$xx)
 tt <- c(tt, as.vector(res$time))
