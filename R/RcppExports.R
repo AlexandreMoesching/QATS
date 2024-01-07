@@ -134,9 +134,6 @@ sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, sigma) {
     .Call(`_QATS_sample_norm_HMM_export_cpp`, n, m, Pi, pp, sigma)
 }
 
-#' Generate a sample and estimate paths using QATS, PMAP and Viterbi
-NULL
-
 #' Generate a sample and estimate paths using QATS and different seeds
 #'
 #' @param n Length of the sequence
@@ -178,7 +175,24 @@ QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep
     .Call(`_QATS_QATS_vs_Viterbi_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 
-QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
-    .Call(`_QATS_compare_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+#' Generate a sample and estimate paths using QATS, PMAP and Viterbi
+#'
+#' @param n Length of the sequence
+#' @param m Cardinality of the state space
+#' @param Pi Initial state distribution
+#' @param pp Transition matrix
+#' @param sigma Standard deviation of the normal emission distribution
+#' @param d0 Smallest search interval
+#' @param n_seeds Number of seeds for the optimistic search
+#' @param rotate Indicates whether or not the gain functions have to be rotated
+#' @param n_rep Number of repetition (for timing)
+#' @param n_sim Number of simulations
+#'
+#' @return A list containing estimation times and errors for both QATS and
+#' Viterbi
+#'
+#' @export
+compare_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
+    .Call(`_QATS_compare_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 
