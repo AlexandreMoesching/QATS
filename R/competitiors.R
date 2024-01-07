@@ -248,6 +248,34 @@ G_classifier.CPP <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0)
   ))
 }
 
+#' PMAP decoder, C++ version
+#'
+#' @param par Model parameters
+#' @param n.rep Number of repetition (for timing)
+#'
+#' @return Estimated sequence, its probability and estimation time
+#' @export
+PMAP.CPP <- function(par, n.rep = 1) {
+  # Load some variables
+  m <- par$m
+  n <- par$n
+  Pi <- par$Pi
+  pp <- par$pp
+  f_mseq <- par$f_mseq
+
+  # Start estimation
+  res <- PMAP_timer_cpp(n.rep, n, m, Pi, pp, f_mseq)
+
+  # Compute path probability
+  logp <- G0(c(res$xx), par)
+  return(list(
+    xx = c(res$xx),
+    logp = logp,
+    time = res$time,
+    time_ms = res$time_ms
+  ))
+}
+
 #' K-segmentation, R version
 #'
 #' @param K_max Maximum number of constant pieces
