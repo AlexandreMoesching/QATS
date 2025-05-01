@@ -269,7 +269,7 @@ display.mat <- function(l, r, x0, par,
 #'
 #' @param xx.0 True hidden path
 #' @param xx.1 1st estimated path
-#' @param xx.2 2nd 2stimated path
+#' @param xx.2 2nd estimated path
 #' @param par Model parameters
 #' @param yy The observation sequence
 #'
