@@ -170,9 +170,9 @@ ggplot() +
   geom_line(
     data = df_states_all_methods %>% filter(variable == "mu", parameters == "Estimated"),
     mapping = aes(x = tt, y = value, col = method, lwd = method),
-    alpha = 0.7
+    alpha = 0.8
   ) +
   scale_linewidth_manual(values = c("Viterbi" = 0.5, "QATS" = 3)) +
-  scale_color_manual(values = c("Viterbi" = "red", "QATS" = "orange")) +
+  scale_color_manual(values = c("Viterbi" = "black", "QATS" = "grey")) +
   labs(x = "Probe number", y = "Log intensity ratio", col = "Method", lwd = "Method")
 dev.off()
