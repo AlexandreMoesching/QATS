@@ -4,25 +4,34 @@
 \alias{OS}
 \title{Basic one-dimensional optimistic search}
 \usage{
-OS(L, R, d0, fun, argfun, M = -1)
+OS(L, R, d0, fun, argfun, M = -1L)
 }
 \arguments{
-\item{L}{Initial left index}
+\item{L}{Integer scalar: left boundary (inclusive).}
 
-\item{R}{Initial right index}
+\item{R}{Integer scalar: right boundary (inclusive), must satisfy R > L.}
 
-\item{d0}{Smallest search interval}
+\item{d0}{Integer scalar ≥ 1: minimum search window width.}
 
-\item{fun}{Function to optimize}
+\item{fun}{Function of one integer argument k; returns a numeric score.}
 
-\item{argfun}{Function to optimize which also returns arguments}
+\item{argfun}{Function of one integer argument k; returns a list with at least:
+\describe{
+\item{h_star}{numeric score at k}
+\item{i_star}{integer or vector of associated state(s)}
+}}
 
-\item{M}{Initial probe (optional)}
+\item{M}{Integer scalar: initial probe position; if < 0, computed automatically.}
 }
 \value{
-Triplet
+A list with elements:
+\describe{
+\item{k_star}{integer, best breakpoint(s)}
+\item{i_star}{integer or vector, associated state(s)}
+\item{h_star}{numeric, maximum score}
+}
 }
 \description{
-Basic one-dimensional optimistic search
+Perform a ternary search over an interval \eqn{L}{L} to \eqn{R}{R} using an objective and an argument-returning function.
 }
 \keyword{internal}
