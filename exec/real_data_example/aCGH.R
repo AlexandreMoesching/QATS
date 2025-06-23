@@ -165,14 +165,14 @@ ggplot() +
   geom_point(
     data = df_states_all_methods %>% select(tt, yy) %>% distinct(),
     mapping = aes(x = tt, y = yy),
-    cex = 0.5
+    cex = 0.3
   ) +
   geom_line(
     data = df_states_all_methods %>% filter(variable == "mu", parameters == "Estimated"),
     mapping = aes(x = tt, y = value, col = method, lwd = method),
     alpha = 0.7
   ) +
-  scale_linewidth_manual(values = c("Viterbi" = 0.5, "QATS" = 4)) +
+  scale_linewidth_manual(values = c("Viterbi" = 0.5, "QATS" = 3)) +
   scale_color_manual(values = c("Viterbi" = "red", "QATS" = "orange")) +
   labs(x = "Probe number", y = "Log intensity ratio", col = "Method", lwd = "Method")
 dev.off()
