@@ -5,7 +5,7 @@ library(patchwork)
 
 #__________________________________________________________________________ ----
 # A. Load and prepare QATS and Viterbi simulations ----
-df <- arrow::read_parquet("data/Simulations_Misspec_HMM_20250623_132547.parquet")
+df <- arrow::read_parquet("data/Simulations_Misspec_HMM_20250623_140336.parquet")
 
 # Get important information
 (df %>% pull(     d0) %>% sort() %>% unique() -> d0     )
