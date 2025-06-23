@@ -5,7 +5,8 @@ library(QATS)
 # ── 1. Parameters ───────────────────────────────────────────────────────────────
 
 m      <- 5
-sigma  <- 0.5
+mu     <- 1:m
+sigma  <- rep(0.5, m)
 n      <- 1e4 + 1
 K      <- 7
 
@@ -22,7 +23,7 @@ par_true <- sample.HMM(
   m        = m,
   K        = K,
   emi.dist  = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 
 xx0 <- par_true$xx
@@ -116,10 +117,10 @@ display.result(xx0, xx_vit, xx_q5, par_true)
 # For a smaller toy example...
 toy <- sample.HMM(n = 3e2+1, m = 2, K = 10,
                   emi.dist  = "normal",
-                  emi.param = list(sigma = sigma))
+                  emi.param = list(mu = 1:2, sigma = rep(0.5, 2)))
 par_toy <- set.par(toy$yy, toy$Pi, toy$pp,
                    emi.dist  = "normal",
-                   emi.param = list(sigma = sigma))
+                   emi.param = list(mu = 1:2, sigma = rep(0.5, 2)))
 
 resV  <- Viterbi.CPP(par_toy)
 resQ <- QATS.CPP(par_toy)

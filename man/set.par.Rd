@@ -4,7 +4,13 @@
 \alias{set.par}
 \title{Precomputes parameters for the estimation}
 \usage{
-set.par(yy, Pi, pp, emi.dist = "normal", emi.param = list(sigma = 1))
+set.par(
+  yy,
+  Pi,
+  pp,
+  emi.dist = "normal",
+  emi.param = list(mu = 1:nrow(pp), sigma = rep(1, nrow(pp)))
+)
 }
 \arguments{
 \item{yy}{Sequence of observations}

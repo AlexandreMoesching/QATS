@@ -6,7 +6,8 @@
 //' @param m Cardinality of the state space
 //' @param Pi Initial state distribution
 //' @param pp Transition matrix
-//' @param sigma Standard deviation of the normal emission distribution
+//' @param mu Means of the normal emission distributions
+//' @param sigma Standard deviations of the normal emission distributions
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -19,7 +20,7 @@
 // [[Rcpp::export(name = "QATS_nseeds_norm")]]
 arma::mat QATS_nseeds_norm_cpp(int n, int m,
                                const arma::vec& Pi, const arma::mat& pp,
-                               double sigma,
+                               const arma::vec& mu, const arma::vec& sigma,
                                int d0, arma::ivec n_seeds, bool rotate, int n_rep,
                                int n_sim) {
   // Declare sample variables
@@ -42,7 +43,7 @@ arma::mat QATS_nseeds_norm_cpp(int n, int m,
   // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
     // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, sigma);
+    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
     par = {m, par0.logPi, par0.qq, par0.GG};
 
     // Loop on the number of seeds
@@ -78,7 +79,8 @@ arma::mat QATS_nseeds_norm_cpp(int n, int m,
 //' @param m Cardinality of the state space
 //' @param Pi Initial state distribution
 //' @param pp Transition matrix
-//' @param sigma Standard deviation of the normal emission distribution
+//' @param mu Means of the normal emission distributions
+//' @param sigma Standard deviations of the normal emission distributions
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -92,7 +94,7 @@ arma::mat QATS_nseeds_norm_cpp(int n, int m,
 // [[Rcpp::export(name = "QATS_vs_Viterbi_norm")]]
 List QATS_vs_Viterbi_norm_cpp(int n, int m,
                               const arma::vec& Pi, const arma::mat& pp,
-                              double sigma,
+                              const arma::vec& mu, const arma::vec& sigma,
                               int d0, int n_seeds, bool rotate, int n_rep,
                               int n_sim) {
   // Declare options
@@ -119,7 +121,7 @@ List QATS_vs_Viterbi_norm_cpp(int n, int m,
   // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
     // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, sigma);
+    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
     par = {m, par0.logPi, par0.qq, par0.GG};
 
     // Estimate with Viterbi
@@ -159,7 +161,8 @@ List QATS_vs_Viterbi_norm_cpp(int n, int m,
 //' @param m Cardinality of the state space
 //' @param Pi Initial state distribution
 //' @param pp Transition matrix
-//' @param sigma Standard deviation of the normal emission distribution
+//' @param mu Means of the normal emission distributions
+//' @param sigma Standard deviations of the normal emission distributions
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -173,7 +176,7 @@ List QATS_vs_Viterbi_norm_cpp(int n, int m,
 // [[Rcpp::export(name = "compare_norm")]]
 List compare_norm_cpp(int n, int m,
                      const arma::vec& Pi, const arma::mat& pp,
-                     double sigma,
+                     const arma::vec& mu, const arma::vec& sigma,
                      int d0, int n_seeds, bool rotate, int n_rep,
                      int n_sim) {
   // Declare options
@@ -203,7 +206,7 @@ List compare_norm_cpp(int n, int m,
   // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
     // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, sigma);
+    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
     par = {m, par0.logPi, par0.qq, par0.GG};
 
     // Estimate with Viterbi

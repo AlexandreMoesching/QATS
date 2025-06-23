@@ -11,7 +11,7 @@ sample.HMM(
   K = NULL,
   pp = NULL,
   emi.dist = "normal",
-  emi.param = list(sigma = 1)
+  emi.param = list(mu = 1:nrow(pp), sigma = rep(1, nrow(pp)))
 )
 }
 \arguments{

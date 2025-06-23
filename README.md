@@ -56,8 +56,9 @@ set.seed(123)
 # Cardinality of the space of hidden states
 m <- 5
 
-# Standard deviation of the normal emission distributions
-sigma <- 0.5
+# Means and standard deviations of the normal emission distributions
+mu <- 1:m
+sigma <- rep(0.5, m)
 
 # Size of the observation sequence
 n <- 1e3 + 1
@@ -69,7 +70,7 @@ K <- 7
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 
 # Extract the hidden (xx.0) and observed (yy) sequences
@@ -103,7 +104,7 @@ simply do:
 res <- Viterbi.CPP(par)
 xx.1 <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 5.8625e-05
+#> [1] 5.8041e-05
 ```
 
 To use the PMAP algorithm in order to estimate the hidden sequence,
@@ -113,7 +114,7 @@ simply do:
 res <- PMAP.CPP(par)
 xx.1.PMAP <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 5.6167e-05
+#> [1] 5.8166e-05
 ```
 
 To use QATS, run:
@@ -122,7 +123,7 @@ To use QATS, run:
 res <- QATS.CPP(par)
 xx.2 <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 0.000548041
+#> [1] 0.000499833
 ```
 
 Here is a plot of the true path (black), Viterbi-path (blue) and
@@ -139,7 +140,7 @@ and that both did not estimate correctly 5 states out of the 1001.
 
 ``` r
 c(sum(xx.0 != xx.1), sum(xx.1 != xx.1.PMAP), sum(xx.1 != xx.2))
-#> [1] 5 1 0
+#> [1] 6 2 0
 ```
 
 ## Comparison of QATS, Viterbi, risk-based estimators and K-segmentation
@@ -152,11 +153,11 @@ n <- 1e6 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 xx.0 <- par$xx
 sum(diff(xx.0) != 0)
-#> [1] 7
+#> [1] 12
 
 # 1. Viterbi
 res <- Viterbi.CPP(par)
@@ -224,24 +225,24 @@ rownames(fit_eval) <- names(tt)
 
 cbind(fit_eval, tt)
 #>                    l0           l1           l2 V-Measure         tt
-#> Viterbi  0.000000e+00 0.000000e+00 0.000000e+00 1.0000000 0.05464342
-#> pMAP-man 1.999998e-06 1.999998e-06 1.414212e-06 0.9999776 0.05559575
-#> pMAP     9.999990e-07 9.999990e-07 9.999990e-07 0.9999886 0.23394704
-#> MPP      6.677853e-01 1.899364e+00 2.367604e-03 0.0000000 0.15494704
-#> MPM      6.677853e-01 1.899364e+00 2.367604e-03 0.0000000 0.16180897
-#> gViterbi 0.000000e+00 0.000000e+00 0.000000e+00 1.0000000 0.15681481
-#> K-seg 1  8.382852e-01 1.228223e+00 1.417073e-03 0.0000000 1.21475196
-#> K-seg 2  6.499274e-01 8.515071e-01 1.120119e-03 0.3074565 1.21475196
-#> K-seg 3  2.194378e-01 2.194378e-01 4.684416e-04 0.6983234 1.21475196
-#> K-seg 4  2.007808e-01 2.007808e-01 4.480855e-04 0.7183576 1.21475196
-#> K-seg 5  5.772294e-02 5.772294e-02 2.402559e-04 0.9179990 1.21475196
-#> K-seg 6  3.906596e-02 3.906596e-02 1.976510e-04 0.9240728 1.21475196
-#> K-seg 7  1.865698e-02 1.865698e-02 1.365905e-04 0.9507386 1.21475196
-#> K-seg 8  0.000000e+00 0.000000e+00 0.000000e+00 1.0000000 1.21475196
-#> K-seg 9  9.999990e-07 9.999990e-07 9.999990e-07 0.9999886 1.21475196
-#> K-seg 10 1.999998e-06 3.999996e-06 2.828424e-06 0.9999801 1.21475196
-#> K-seg 11 7.999992e-06 7.999992e-06 2.828424e-06 0.9999199 1.21475196
-#> QATS     0.000000e+00 0.000000e+00 0.000000e+00 1.0000000 0.00151600
+#> Viterbi  5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.05594833
+#> pMAP-man 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.05745087
+#> pMAP     6.999993e-06 6.999993e-06 2.645749e-06 0.9999410 0.25139308
+#> MPP      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.15448117
+#> MPM      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.17164683
+#> gViterbi 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.15684795
+#> K-seg 1  5.979274e-01 9.759230e-01 1.316021e-03 0.0000000 1.23300815
+#> K-seg 2  4.597595e-01 6.995873e-01 1.085929e-03 0.2491195 1.23300815
+#> K-seg 3  6.750173e-01 7.692662e-01 9.786537e-04 0.3080688 1.23300815
+#> K-seg 4  3.211047e-01 4.222776e-01 7.903308e-04 0.5280141 1.23300815
+#> K-seg 5  2.476548e-01 2.753777e-01 5.751724e-04 0.6969048 1.23300815
+#> K-seg 6  2.199318e-01 2.199318e-01 4.689686e-04 0.7686577 1.23300815
+#> K-seg 7  1.715908e-01 1.715908e-01 4.142350e-04 0.7796504 1.23300815
+#> K-seg 8  1.364359e-01 1.364359e-01 3.693721e-04 0.8115278 1.23300815
+#> K-seg 9  9.011891e-02 9.011891e-02 3.001980e-04 0.8600035 1.23300815
+#> K-seg 10 5.496395e-02 5.496395e-02 2.344438e-04 0.8910202 1.23300815
+#> K-seg 11 4.427496e-02 4.427496e-02 2.104160e-04 0.9038261 1.23300815
+#> QATS     5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.00266850
 ```
 
 ## Step-by-step computation of QATS
@@ -254,7 +255,7 @@ n <- 3e2 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 res.Vit <- Viterbi.CPP(par)
 res.QATS <- QATS.display(par$xx, res.Vit$xx, par)

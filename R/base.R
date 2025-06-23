@@ -18,8 +18,14 @@ NULL
 #'
 #' @return A list of computed parameters: log-probabilities and cumulative sums
 #' @export
-set.par <- function(yy, Pi, pp,
-                    emi.dist = "normal", emi.param = list(sigma = 1)) {
+set.par <- function(
+    yy, Pi, pp,
+    emi.dist = "normal",
+    emi.param = list(
+      mu = 1:nrow(pp),
+      sigma = rep(1, nrow(pp))
+    )
+) {
   n <- length(yy)
   m <- length(Pi)
 
@@ -30,20 +36,20 @@ set.par <- function(yy, Pi, pp,
   GG <- matrix(0, nrow = m, ncol = n)
 
   if (emi.dist == "normal") {
-    stopifnot(!is.null(emi.param$sigma))
+    stopifnot(!is.null(emi.param$sigma) && !is.null(emi.param$sigma))
     for (i in 1:m) {
-      f_mseq[i, ] <- stats::dnorm(yy, i, emi.param$sigma)
-      g_mseq[i, ] <- stats::dnorm(yy, i, emi.param$sigma, log = TRUE)
+      f_mseq[i, ] <- stats::dnorm(yy, emi.param$mu[i], emi.param$sigma[i])
+      g_mseq[i, ] <- stats::dnorm(yy, emi.param$mu[i], emi.param$sigma[i], log = TRUE)
       GG[i, ] <- cumsum(g_mseq[i, ])
     }
   } else if (emi.dist == "g.student") {
     stopifnot(!is.null(emi.param$nu) && !is.null(emi.param$sigma))
     for (i in 1:m) {
       f_mseq[i, ] <-
-        stats::dt((yy - i) / emi.param$sigma, emi.param$nu) / emi.param$sigma
+        stats::dt((yy - emi.param$mu[i]) / emi.param$sigma[i], emi.param$nu[i]) / emi.param$sigma[i]
       g_mseq[i, ] <-
-        stats::dt((yy - i) / emi.param$sigma, emi.param$nu, log = TRUE) -
-        log(emi.param$sigma)
+        stats::dt((yy - emi.param$mu[i]) / emi.param$sigma[i], emi.param$nu[i], log = TRUE) -
+        log(emi.param$sigma[i])
       GG[i, ] <- cumsum(g_mseq[i, ])
     }
   }
@@ -76,8 +82,14 @@ set.par <- function(yy, Pi, pp,
 #'
 #' @return An HMM process and all parameters for the estimation
 #' @export
-sample.HMM <- function(n, m, Pi = NULL, K = NULL, pp = NULL,
-                       emi.dist = "normal", emi.param = list(sigma = 1)) {
+sample.HMM <- function(
+    n, m, Pi = NULL, K = NULL, pp = NULL,
+    emi.dist = "normal",
+    emi.param = list(
+      mu = 1:nrow(pp),
+      sigma = rep(1, nrow(pp))
+    )
+) {
   # Length of the sequence to generate
   stopifnot(n > 1)
   # Cardinality of the state space
@@ -97,27 +109,15 @@ sample.HMM <- function(n, m, Pi = NULL, K = NULL, pp = NULL,
     )
     pp <- matrix(K / ((n - 1) * (m - 1)), nrow = m, ncol = m)
     diag(pp) <- 1 - K / (n - 1)
-  } else {
-    stopifnot(
-      !is.null(pp),
-      !is.null(dim(pp)),
-      dim(pp) == c(m, m),
-      all(rowSums(pp) == 1)
-    )
-    SD <- eigen(t(pp) - diag(m))
-    SS_prob <- abs(SD$vectors[, which(round(SD$values, digits = 13) == 0)])
-    SS_prob <- SS_prob / sum(SS_prob) # Steady-state probabilities
-    Prop_Stays_and_Jumps <- SS_prob * pp
-    K <- (n - 1) * (1 - sum(diag(Prop_Stays_and_Jumps)))
   }
   # Emission distribution
   stopifnot(emi.dist %in% c("normal", "g.student"))
   if (emi.dist == "normal") {
     stopifnot(!is.null(emi.param$sigma))
-    return(sample_norm_HMM_export_cpp(n, m, Pi, pp, emi.param$sigma))
+    return(sample_norm_HMM_export_cpp(n, m, Pi, pp, emi.param$mu, emi.param$sigma))
   } else if (emi.dist == "g.student") {
     stopifnot(!is.null(emi.param$nu) && !is.null(emi.param$sigma))
-    return(sample.t.HMM(n, m, Pi, pp, emi.param$nu, emi.param$sigma))
+    return(sample.t.HMM(n, m, Pi, pp, emi.param$nu, emi.param$mu, emi.param$sigma))
   }
 }
 
@@ -129,11 +129,12 @@ sample.HMM <- function(n, m, Pi = NULL, K = NULL, pp = NULL,
 #' @param Pi Initial state distribution
 #' @param pp Transition matrix
 #' @param nu Degrees of freedom
+#' @param mu Mean vector
 #' @param sigma Scale parameter
 #'
 #' @return The hidden sequence and the sequence of observations
 #' @keywords internal
-sample.t.HMM <- function(n, m, Pi, pp, nu, sigma) {
+sample.t.HMM <- function(n, m, Pi, pp, nu, mu, sigma) {
   # Declare logPi
   logPi <- log(Pi)
 
@@ -149,15 +150,15 @@ sample.t.HMM <- function(n, m, Pi, pp, nu, sigma) {
   }
 
   # Declare yy
-  yy <- xx + sigma * stats::rt(n, nu)
+  yy <- mu[xx] + sigma * stats::rt(n, nu)
 
   # Declare and compute f_mseq, g_mseq and GG
   f_mseq <- matrix(0, nrow = m, ncol = n)
   g_mseq <- matrix(0, nrow = m, ncol = n)
   GG <- matrix(0, nrow = m, ncol = n)
   for (i in 1:m) {
-    f_mseq[i, ] <- stats::dt((yy - i) / sigma, nu) / sigma
-    g_mseq[i, ] <- stats::dt((yy - i) / sigma, nu, log = TRUE) - log(sigma)
+    f_mseq[i, ] <- stats::dt((yy - mu[i]) / sigma[i], nu[i]) / sigma[i]
+    g_mseq[i, ] <- stats::dt((yy - mu[i]) / sigma[i], nu[i], log = TRUE) - log(sigma[i])
     GG[i, ] <- cumsum(g_mseq[i, ])
   }
 

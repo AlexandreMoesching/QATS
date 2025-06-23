@@ -49,8 +49,9 @@ set.seed(123)
 # Cardinality of the space of hidden states
 m <- 5
 
-# Standard deviation of the normal emission distributions
-sigma <- 0.5
+# Means and standard deviations of the normal emission distributions
+mu <- 1:m
+sigma <- rep(0.5, m)
 
 # Size of the observation sequence
 n <- 1e3 + 1
@@ -62,7 +63,7 @@ K <- 7
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 
 # Extract the hidden (xx.0) and observed (yy) sequences
@@ -127,7 +128,7 @@ n <- 1e6 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 xx.0 <- par$xx
 sum(diff(xx.0) != 0)
@@ -209,7 +210,7 @@ n <- 3e2 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 res.Vit <- Viterbi.CPP(par)
 res.QATS <- QATS.display(par$xx, res.Vit$xx, par)
