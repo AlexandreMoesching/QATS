@@ -13,8 +13,11 @@ int SampleFromCumsumProbVec(int m, const arma::rowvec& CumsumProbVec) {
   return res;
 }
 
-par0 sample_norm_HMM_cpp(int n, int m, const arma::vec& Pi,
-                         const arma::mat& pp, double sigma) {
+par0 sample_norm_HMM_cpp(int n, int m,
+                         const arma::vec& Pi,
+                         const arma::mat& pp,
+                         const arma::vec& mu,
+                         const arma::vec& sigma) {
   par0 par;
   par.n = n;
   par.m = m;
@@ -29,18 +32,15 @@ par0 sample_norm_HMM_cpp(int n, int m, const arma::vec& Pi,
     pp_cumsum.row(i) = cumsum(pp.row(i));
   }
 
-  // Declare and compute xx
+  // Declare and compute xx and yy
   arma::ivec xx(n, arma::fill::zeros);
+  arma::vec yy(n, arma::fill::randn); // Initially white noise Eps, then mu + sigma * Eps
   xx[0] = SampleFromCumsumProbVec(m, cumsum(Pi).t());
+  yy[0] = mu[xx[0]] + yy[0] * sigma[xx[0]];
   for (int k = 1; k < n; k++) {
     xx[k] = SampleFromCumsumProbVec(m, pp_cumsum.row(xx[k-1]));
+    yy[k] = mu[xx[k]] + sigma[xx[k]] * yy[k];
   }
-
-  // At this stage, xx is still on the scale 0:(m-1)
-
-  // Declare and compute yy
-  arma::vec yy(n, arma::fill::randn);
-  yy = yy * sigma + xx + 1; // + 1 to shift to the scale 1:m
 
   // Allocate xx and yy
   par.xx = xx;
@@ -51,8 +51,8 @@ par0 sample_norm_HMM_cpp(int n, int m, const arma::vec& Pi,
   arma::mat g_mseq(m, n, arma::fill::zeros);
   arma::mat GG(m, n, arma::fill::zeros);
   for (int i = 0; i < m; i++) {
-    f_mseq.row(i) = arma::normpdf(    yy, i + 1.0, sigma).t();
-    g_mseq.row(i) = arma::log_normpdf(yy, i + 1.0, sigma).t();
+    f_mseq.row(i) = arma::normpdf(    yy, mu[i], sigma[i]).t();
+    g_mseq.row(i) = arma::log_normpdf(yy, mu[i], sigma[i]).t();
     GG.row(i)     = cumsum(g_mseq.row(i));
   }
 
@@ -68,9 +68,11 @@ par0 sample_norm_HMM_cpp(int n, int m, const arma::vec& Pi,
 //' @keywords internal
 // [[Rcpp::export]]
 List sample_norm_HMM_export_cpp(int n, int m, const arma::vec& Pi,
-                                const arma::mat& pp, double sigma) {
+                                const arma::mat& pp,
+                                const arma::vec& mu,
+                                const arma::vec& sigma) {
   // Generate an HMM and compute necessary parameters
-  par0 par = sample_norm_HMM_cpp(n, m, Pi, pp, sigma);
+  par0 par = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
 
   // Return list
   return List::create(Named("n")      = n,

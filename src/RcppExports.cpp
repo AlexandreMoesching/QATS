@@ -191,8 +191,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // sample_norm_HMM_export_cpp
-List sample_norm_HMM_export_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, double sigma);
-RcppExport SEXP _QATS_sample_norm_HMM_export_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP sigmaSEXP) {
+List sample_norm_HMM_export_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::vec& mu, const arma::vec& sigma);
+RcppExport SEXP _QATS_sample_norm_HMM_export_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP muSEXP, SEXP sigmaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -200,14 +200,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
-    rcpp_result_gen = Rcpp::wrap(sample_norm_HMM_export_cpp(n, m, Pi, pp, sigma));
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(sample_norm_HMM_export_cpp(n, m, Pi, pp, mu, sigma));
     return rcpp_result_gen;
 END_RCPP
 }
 // QATS_nseeds_norm_cpp
-arma::mat QATS_nseeds_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, double sigma, int d0, arma::ivec n_seeds, bool rotate, int n_rep, int n_sim);
-RcppExport SEXP _QATS_QATS_nseeds_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
+arma::mat QATS_nseeds_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::vec& mu, const arma::vec& sigma, int d0, arma::ivec n_seeds, bool rotate, int n_rep, int n_sim);
+RcppExport SEXP _QATS_QATS_nseeds_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -215,19 +216,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< int >::type d0(d0SEXP);
     Rcpp::traits::input_parameter< arma::ivec >::type n_seeds(n_seedsSEXP);
     Rcpp::traits::input_parameter< bool >::type rotate(rotateSEXP);
     Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n_sim(n_simSEXP);
-    rcpp_result_gen = Rcpp::wrap(QATS_nseeds_norm_cpp(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim));
+    rcpp_result_gen = Rcpp::wrap(QATS_nseeds_norm_cpp(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim));
     return rcpp_result_gen;
 END_RCPP
 }
 // QATS_vs_Viterbi_norm_cpp
-List QATS_vs_Viterbi_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, double sigma, int d0, int n_seeds, bool rotate, int n_rep, int n_sim);
-RcppExport SEXP _QATS_QATS_vs_Viterbi_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
+List QATS_vs_Viterbi_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::vec& mu, const arma::vec& sigma, int d0, int n_seeds, bool rotate, int n_rep, int n_sim);
+RcppExport SEXP _QATS_QATS_vs_Viterbi_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -235,19 +237,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< int >::type d0(d0SEXP);
     Rcpp::traits::input_parameter< int >::type n_seeds(n_seedsSEXP);
     Rcpp::traits::input_parameter< bool >::type rotate(rotateSEXP);
     Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n_sim(n_simSEXP);
-    rcpp_result_gen = Rcpp::wrap(QATS_vs_Viterbi_norm_cpp(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim));
+    rcpp_result_gen = Rcpp::wrap(QATS_vs_Viterbi_norm_cpp(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim));
     return rcpp_result_gen;
 END_RCPP
 }
 // compare_norm_cpp
-List compare_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, double sigma, int d0, int n_seeds, bool rotate, int n_rep, int n_sim);
-RcppExport SEXP _QATS_compare_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
+List compare_norm_cpp(int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::vec& mu, const arma::vec& sigma, int d0, int n_seeds, bool rotate, int n_rep, int n_sim);
+RcppExport SEXP _QATS_compare_norm_cpp(SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP n_simSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -255,13 +258,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
-    Rcpp::traits::input_parameter< double >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type sigma(sigmaSEXP);
     Rcpp::traits::input_parameter< int >::type d0(d0SEXP);
     Rcpp::traits::input_parameter< int >::type n_seeds(n_seedsSEXP);
     Rcpp::traits::input_parameter< bool >::type rotate(rotateSEXP);
     Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n_sim(n_simSEXP);
-    rcpp_result_gen = Rcpp::wrap(compare_norm_cpp(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim));
+    rcpp_result_gen = Rcpp::wrap(compare_norm_cpp(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -277,10 +281,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_QATS_H1_dbl_cpp", (DL_FUNC) &_QATS_H1_dbl_cpp, 7},
     {"_QATS_H2_vec_cpp", (DL_FUNC) &_QATS_H2_vec_cpp, 7},
     {"_QATS_H3_mat_cpp", (DL_FUNC) &_QATS_H3_mat_cpp, 7},
-    {"_QATS_sample_norm_HMM_export_cpp", (DL_FUNC) &_QATS_sample_norm_HMM_export_cpp, 5},
-    {"_QATS_QATS_nseeds_norm_cpp", (DL_FUNC) &_QATS_QATS_nseeds_norm_cpp, 10},
-    {"_QATS_QATS_vs_Viterbi_norm_cpp", (DL_FUNC) &_QATS_QATS_vs_Viterbi_norm_cpp, 10},
-    {"_QATS_compare_norm_cpp", (DL_FUNC) &_QATS_compare_norm_cpp, 10},
+    {"_QATS_sample_norm_HMM_export_cpp", (DL_FUNC) &_QATS_sample_norm_HMM_export_cpp, 6},
+    {"_QATS_QATS_nseeds_norm_cpp", (DL_FUNC) &_QATS_QATS_nseeds_norm_cpp, 11},
+    {"_QATS_QATS_vs_Viterbi_norm_cpp", (DL_FUNC) &_QATS_QATS_vs_Viterbi_norm_cpp, 11},
+    {"_QATS_compare_norm_cpp", (DL_FUNC) &_QATS_compare_norm_cpp, 11},
     {NULL, NULL, 0}
 };
 

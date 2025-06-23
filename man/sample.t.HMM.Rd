@@ -5,7 +5,7 @@
 \title{Generates an HMM process with student noise and precomputes parameters for
 estimation}
 \usage{
-sample.t.HMM(n, m, Pi, pp, nu, sigma)
+sample.t.HMM(n, m, Pi, pp, nu, mu, sigma)
 }
 \arguments{
 \item{n}{Length of the sequence to generate}
@@ -17,6 +17,8 @@ sample.t.HMM(n, m, Pi, pp, nu, sigma)
 \item{pp}{Transition matrix}
 
 \item{nu}{Degrees of freedom}
+
+\item{mu}{Mean vector}
 
 \item{sigma}{Scale parameter}
 }

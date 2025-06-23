@@ -18,7 +18,13 @@ struct par0 {
 
 int SampleFromCumsumProbVec(int m, const arma::rowvec& CumsumProbVec);
 
-par0 sample_norm_HMM_cpp(       int n, int m, const arma::vec& Pi,
-                                const arma::mat& pp, double sigma);
-List sample_norm_HMM_export_cpp(int n, int m, const arma::vec& Pi,
-                                const arma::mat& pp, double sigma);
+par0 sample_norm_HMM_cpp(       int n, int m,
+                                const arma::vec& Pi,
+                                const arma::mat& pp,
+                                const arma::vec& mu,
+                                const arma::vec& sigma);
+List sample_norm_HMM_export_cpp(int n, int m,
+                                const arma::vec& Pi,
+                                const arma::mat& pp,
+                                const arma::vec& mu,
+                                const arma::vec& sigma);

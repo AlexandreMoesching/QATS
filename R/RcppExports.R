@@ -130,8 +130,8 @@ H3_mat_cpp <- function(l, r, x0, m, logPi, qq, GG) {
 }
 
 #' @keywords internal
-sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, sigma) {
-    .Call(`_QATS_sample_norm_HMM_export_cpp`, n, m, Pi, pp, sigma)
+sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, mu, sigma) {
+    .Call(`_QATS_sample_norm_HMM_export_cpp`, n, m, Pi, pp, mu, sigma)
 }
 
 #' Generate a sample and estimate paths using QATS and different seeds
@@ -140,7 +140,8 @@ sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, sigma) {
 #' @param m Cardinality of the state space
 #' @param Pi Initial state distribution
 #' @param pp Transition matrix
-#' @param sigma Standard deviation of the normal emission distribution
+#' @param mu Means of the normal emission distributions
+#' @param sigma Standard deviations of the normal emission distributions
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -150,8 +151,8 @@ sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, sigma) {
 #' @return A matrix containing estimation times and errors for QATS
 #'
 #' @export
-QATS_nseeds_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
-    .Call(`_QATS_QATS_nseeds_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+QATS_nseeds_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
+    .Call(`_QATS_QATS_nseeds_norm_cpp`, n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 
 #' Generate a sample and estimate paths using QATS and Viterbi
@@ -160,7 +161,8 @@ QATS_nseeds_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_
 #' @param m Cardinality of the state space
 #' @param Pi Initial state distribution
 #' @param pp Transition matrix
-#' @param sigma Standard deviation of the normal emission distribution
+#' @param mu Means of the normal emission distributions
+#' @param sigma Standard deviations of the normal emission distributions
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -171,8 +173,8 @@ QATS_nseeds_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_
 #' Viterbi
 #'
 #' @export
-QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
-    .Call(`_QATS_QATS_vs_Viterbi_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
+    .Call(`_QATS_QATS_vs_Viterbi_norm_cpp`, n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 
 #' Generate a sample and estimate paths using QATS, PMAP and Viterbi
@@ -181,7 +183,8 @@ QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep
 #' @param m Cardinality of the state space
 #' @param Pi Initial state distribution
 #' @param pp Transition matrix
-#' @param sigma Standard deviation of the normal emission distribution
+#' @param mu Means of the normal emission distributions
+#' @param sigma Standard deviations of the normal emission distributions
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
@@ -192,7 +195,7 @@ QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep
 #' Viterbi
 #'
 #' @export
-compare_norm <- function(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
-    .Call(`_QATS_compare_norm_cpp`, n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+compare_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
+    .Call(`_QATS_compare_norm_cpp`, n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 

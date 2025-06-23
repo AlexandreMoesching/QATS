@@ -1,7 +1,7 @@
 rm(list = ls())
 library("QATS")
 
-n <- 2e2+1; m <- 5; sigma <- 0.5; K <- 10
+n <- 2e2+1; m <- 5; mu <- 1:m; sigma <- rep(0.5, m); K <- 10
 opts <- list(n.rep = 1, rotate = FALSE)
 
 opts$SS <- NULL
@@ -17,7 +17,7 @@ for (i.sim in 1:n.sim) {
   # Generate data
   par <- sample.HMM(n = n, m = m, K = K,
                     emi.dist = "normal",
-                    emi.param = list(sigma = sigma))
+                    emi.param = list(mu = mu, sigma = sigma))
 
   # Fit C++
   res_cpp <- QATS.CPP(par, opts)

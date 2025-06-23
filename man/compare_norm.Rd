@@ -4,7 +4,7 @@
 \alias{compare_norm}
 \title{Generate a sample and estimate paths using QATS, PMAP and Viterbi}
 \usage{
-compare_norm(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
+compare_norm(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 }
 \arguments{
 \item{n}{Length of the sequence}
@@ -15,7 +15,9 @@ compare_norm(n, m, Pi, pp, sigma, d0, n_seeds, rotate, n_rep, n_sim)
 
 \item{pp}{Transition matrix}
 
-\item{sigma}{Standard deviation of the normal emission distribution}
+\item{mu}{Means of the normal emission distributions}
+
+\item{sigma}{Standard deviations of the normal emission distributions}
 
 \item{d0}{Smallest search interval}
 

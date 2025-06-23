@@ -14,17 +14,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# QATS
+# QATS (Quick Adaptive Ternary Segmentation)
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-In hidden Markov models (HMM), one observes a noisy version of an unobservable finite-state Markov chain. One of the main components of HMM is to decode that signal, that is to estimate the sequence of hidden states at the origin of the observation sequence. Existing decoding algorithms such as [Viterbi (1967)](https://doi.org/10.1109/TIT.1967.1054010) algorithm have computational complexity at best linear in the size of the observed sequence, and sub-quadratic in the size of the state space. 
+In hidden Markov models (HMM), one observes a noisy version of an unobservable finite-state Markov chain. One of the main components of HMM is to decode that signal, that is to estimate the sequence of hidden states at the origin of the observation sequence. Existing decoding algorithms such as [Viterbi (1967)](https://doi.org/10.1109/TIT.1967.1054010) algorithm have computational complexity at best linear in the size of the observed sequence, and sub-quadratic in the size of the state space.
 
 Assuming that the observation sequence is stored as specific cumulative sums, we present Quick Adaptive Ternary Segmentation (QATS), a procedure which decodes the hidden sequence in polylogarithmic computational complexity in the size of the sequence, and cubic in the size of the state space. In essence, the estimated sequence of states sequentially maximizes local likelihood scores among all local paths with at most three segments. The latter search is performed only approximately using an adaptive search procedure. The resulting sequence is admissible in the sense that all transitions occur with positive probability.
 
 QATS and Viterbi algorithm, as well as algorithms to compute the generalized risk-based estimator of [Lember and Koloydenko (2014)](https://dl.acm.org/doi/10.5555/2627435.2627436) and the K-segment approach of [Titsias, Holmes and Yau (2016)](https://doi.org/10.1080/01621459.2014.998762) are implemented in both **R** and **C++**.
-
 
 ## Installation
 
@@ -49,8 +49,9 @@ set.seed(123)
 # Cardinality of the space of hidden states
 m <- 5
 
-# Standard deviation of the normal emission distributions
-sigma <- 0.5
+# Means and standard deviations of the normal emission distributions
+mu <- 1:m
+sigma <- rep(0.5, m)
 
 # Size of the observation sequence
 n <- 1e3 + 1
@@ -62,7 +63,7 @@ K <- 7
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 
 # Extract the hidden (xx.0) and observed (yy) sequences
@@ -127,7 +128,7 @@ n <- 1e6 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 xx.0 <- par$xx
 sum(diff(xx.0) != 0)
@@ -209,7 +210,7 @@ n <- 3e2 + 1
 par <- sample.HMM(
   n = n, m = m, K = K,
   emi.dist = "normal",
-  emi.param = list(sigma = sigma)
+  emi.param = list(mu = mu, sigma = sigma)
 )
 res.Vit <- Viterbi.CPP(par)
 res.QATS <- QATS.display(par$xx, res.Vit$xx, par)
