@@ -32,6 +32,18 @@ K-segment approach of [Titsias, Holmes and Yau
 (2016)](https://doi.org/10.1080/01621459.2014.998762) are implemented in
 both **R** and **C++**.
 
+Our implementation of QATS targets the homogeneous hidden‐Markov‐model
+decoding problem, meaning that the transition matrix
+$\boldsymbol{p}^{(k)} = \boldsymbol{p}$, for all $k=1,\ldots,n-1$,
+remains fixed over time. However, our implementation imposes no
+homogeneity requirement on the emission side: it only needs the
+cumulative sums of the log‐emission densities at each time point (which
+may vary arbitrarily). If you ever need a fully non‐homogeneous
+HMM–where $\boldsymbol{p}^{(k)}$ changes with $k$–you can swap out each
+use of the static $\boldsymbol{p}$ in the code for the time-indexed
+$\boldsymbol{p}^{(k)}$ when computing transition log‐probabilities. This
+should come at no resulting increase in computational time.
+
 ## Installation
 
 You can install the development version of **QATS** from
@@ -104,7 +116,7 @@ simply do:
 res <- Viterbi.CPP(par)
 xx.1 <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 5.8041e-05
+#> [1] 6.2959e-05
 ```
 
 To use the PMAP algorithm in order to estimate the hidden sequence,
@@ -114,7 +126,7 @@ simply do:
 res <- PMAP.CPP(par)
 xx.1.PMAP <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 5.8166e-05
+#> [1] 7.0291e-05
 ```
 
 To use QATS, run:
@@ -123,7 +135,7 @@ To use QATS, run:
 res <- QATS.CPP(par)
 xx.2 <- res$xx
 (tt <- as.vector(res$time)) # Time in seconds
-#> [1] 0.000499833
+#> [1] 0.000512708
 ```
 
 Here is a plot of the true path (black), Viterbi-path (blue) and
@@ -224,25 +236,25 @@ for (w in 1:n.estim) {
 rownames(fit_eval) <- names(tt)
 
 cbind(fit_eval, tt)
-#>                    l0           l1           l2 V-Measure         tt
-#> Viterbi  5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.05594833
-#> pMAP-man 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.05745087
-#> pMAP     6.999993e-06 6.999993e-06 2.645749e-06 0.9999410 0.25139308
-#> MPP      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.15448117
-#> MPM      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.17164683
-#> gViterbi 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.15684795
-#> K-seg 1  5.979274e-01 9.759230e-01 1.316021e-03 0.0000000 1.23300815
-#> K-seg 2  4.597595e-01 6.995873e-01 1.085929e-03 0.2491195 1.23300815
-#> K-seg 3  6.750173e-01 7.692662e-01 9.786537e-04 0.3080688 1.23300815
-#> K-seg 4  3.211047e-01 4.222776e-01 7.903308e-04 0.5280141 1.23300815
-#> K-seg 5  2.476548e-01 2.753777e-01 5.751724e-04 0.6969048 1.23300815
-#> K-seg 6  2.199318e-01 2.199318e-01 4.689686e-04 0.7686577 1.23300815
-#> K-seg 7  1.715908e-01 1.715908e-01 4.142350e-04 0.7796504 1.23300815
-#> K-seg 8  1.364359e-01 1.364359e-01 3.693721e-04 0.8115278 1.23300815
-#> K-seg 9  9.011891e-02 9.011891e-02 3.001980e-04 0.8600035 1.23300815
-#> K-seg 10 5.496395e-02 5.496395e-02 2.344438e-04 0.8910202 1.23300815
-#> K-seg 11 4.427496e-02 4.427496e-02 2.104160e-04 0.9038261 1.23300815
-#> QATS     5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.00266850
+#>                    l0           l1           l2 V-Measure          tt
+#> Viterbi  5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.055746166
+#> pMAP-man 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.061127459
+#> pMAP     6.999993e-06 6.999993e-06 2.645749e-06 0.9999410 0.253034115
+#> MPP      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.157251120
+#> MPM      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.165350199
+#> gViterbi 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.158349991
+#> K-seg 1  5.979274e-01 9.759230e-01 1.316021e-03 0.0000000 1.263525963
+#> K-seg 2  4.597595e-01 6.995873e-01 1.085929e-03 0.2491195 1.263525963
+#> K-seg 3  6.750173e-01 7.692662e-01 9.786537e-04 0.3080688 1.263525963
+#> K-seg 4  3.211047e-01 4.222776e-01 7.903308e-04 0.5280141 1.263525963
+#> K-seg 5  2.476548e-01 2.753777e-01 5.751724e-04 0.6969048 1.263525963
+#> K-seg 6  2.199318e-01 2.199318e-01 4.689686e-04 0.7686577 1.263525963
+#> K-seg 7  1.715908e-01 1.715908e-01 4.142350e-04 0.7796504 1.263525963
+#> K-seg 8  1.364359e-01 1.364359e-01 3.693721e-04 0.8115278 1.263525963
+#> K-seg 9  9.011891e-02 9.011891e-02 3.001980e-04 0.8600035 1.263525963
+#> K-seg 10 5.496395e-02 5.496395e-02 2.344438e-04 0.8910202 1.263525963
+#> K-seg 11 4.427496e-02 4.427496e-02 2.104160e-04 0.9038261 1.263525963
+#> QATS     5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.002587375
 ```
 
 ## Step-by-step computation of QATS
