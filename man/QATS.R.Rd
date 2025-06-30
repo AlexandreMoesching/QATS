@@ -2,22 +2,51 @@
 % Please edit documentation in R/QATS.R
 \name{QATS.R}
 \alias{QATS.R}
-\title{Quick Adaptive Ternary Segmentation, R version}
+\title{Quick Adaptive Ternary Segmentation (pure R)}
 \usage{
-QATS.R(par, opts = list(n.seeds = 3, d0 = 3, SS = NULL, rotate = FALSE))
+QATS.R(par, opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE))
 }
 \arguments{
-\item{par}{Model parameters}
+\item{par}{A list with components
+\describe{
+\item{n}{(integer) length of the sequence}
+\item{m}{(integer) number of hidden states}
+\item{yy}{(numeric vector) observations}
+\item{logPi}{(numeric vector length m) initial log-probabilities}
+\item{qq}{(matrix m×m) log-transition matrix}
+\item{GG}{(matrix m×n) cumulative log-emissions}
+}}
 
-\item{opts}{A list of options for the estimation. Default is \code{opts =
-list(n.seeds = 3, d0 = 3, SS = NULL, rotate = FALSE)} where \code{n.seeds} is
-the number of seeds for the optimistic search, \code{d0} is the size of the
-smallest search interval, \code{SS} is the initial partition and
-\code{rotate} indicates whether or not the gain functions have to be rotated.}
+\item{opts}{A list of options
+\describe{
+\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search}
+\item{d0}{(integer ≥ 1) minimum window width}
+\item{SS}{(integer matrix 2×k) optional initial partition rows = [l,r]}
+\item{rotate}{(logical) whether to apply linear “rotation” adjustment}
+\item{n.rep}{integer ≥ 1; number of repetitions for timing of C++ version (default 1)}
+}}
 }
 \value{
-Estimated sequence, its probability and estimation time
+A list with
+\describe{
+\item{xx}{(integer vector length n) estimated hidden path}
+\item{logp}{(numeric) log-probability of \code{xx}}
+\item{time}{\code{difftime} object giving CPU time}
+}
 }
 \description{
-Quick Adaptive Ternary Segmentation, R version
+Given an HMM parameter object, do a greedy ternary segmentation of the
+observation sequence by repeatedly inserting up to two change‐points per
+segment where they most improve the log-likelihood.
+}
+\examples{
+\dontrun{
+par <- sample.HMM(
+  n = 100, m = 3, K = 5,
+  emi.dist = "normal",
+  emi.param = list(mu = 1:3, sigma = rep(1, 3))
+)
+res <- QATS.R(par)
+str(res)
+}
 }

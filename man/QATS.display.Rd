@@ -2,31 +2,69 @@
 % Please edit documentation in R/QATS.R
 \name{QATS.display}
 \alias{QATS.display}
-\title{Quick Adaptive Ternary Segmentation, with display}
+\title{Quick Adaptive Ternary Segmentation – Step‐by‐Step Display}
 \usage{
 QATS.display(
   xx.0,
   xx.Vit,
   par,
-  opts = list(n.seeds = 3, d0 = 3, SS = NULL, rotate = FALSE)
+  opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE)
 )
 }
 \arguments{
-\item{xx.0}{True hidden sequence}
+\item{xx.0}{Integer (or numeric) vector of length \code{n}: the true hidden‐state sequence.}
 
-\item{xx.Vit}{Hidden sequence estimated by Viterbi}
+\item{xx.Vit}{Integer (or numeric) vector of length \code{n}: the Viterbi‐estimated sequence.}
 
-\item{par}{Model parameters}
+\item{par}{A list with components
+\describe{
+\item{n}{(integer) length of the sequence}
+\item{m}{(integer) number of hidden states}
+\item{yy}{(numeric vector) observations}
+\item{logPi}{(numeric vector length m) initial log-probabilities}
+\item{qq}{(matrix m×m) log-transition matrix}
+\item{GG}{(matrix m×n) cumulative log-emissions}
+}}
 
-\item{opts}{A list of options for the estimation. Default is \code{opts =
-list(n.seeds = 3, d0 = 3, SS = NULL, rotate = FALSE)} where \code{n.seeds} is
-the number of seeds for the optimistic search, \code{d0} is the size of the
-smallest search interval, \code{SS} is the initial partition and
-\code{rotate} indicates whether or not the gain functions have to be rotated.}
+\item{opts}{A list of options
+\describe{
+\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search}
+\item{d0}{(integer ≥ 1) minimum window width}
+\item{SS}{(integer matrix 2×k) optional initial partition rows = [l,r]}
+\item{rotate}{(logical) whether to apply linear “rotation” adjustment}
+\item{n.rep}{integer ≥ 1; number of repetitions for timing of C++ version (default 1)}
+}}
 }
 \value{
-Estimated sequence and its probability
+A list with
+\describe{
+\item{xx}{(integer vector length n) estimated hidden path}
+\item{logp}{(numeric) log-probability of \code{xx}}
+}
 }
 \description{
-Quick Adaptive Ternary Segmentation, with display
+An interactive variant of QATS that pauses after each partition update and
+plots the current segmentation, the Viterbi path, and the true hidden sequence.
+}
+\details{
+After initializing to the best constant fit on each segment, \code{QATS.display()}
+enters a greedy loop.  At each step it:
+\enumerate{
+\item Highlights the sub‐interval currently under search.
+\item Plots the marginal gain functions (\code{H2}, \code{H3}) and their maxima.
+\item Pauses for user input before inserting up to two new change‐points.
+}
+}
+\examples{
+\dontrun{
+par <- sample.HMM(
+  n = 100, m = 3, K = 5,
+  emi.dist = "normal",
+  emi.param = list(mu = 1:3, sigma = rep(1, 3))
+)
+xx0 <- par$xx
+resVit <- Viterbi.CPP(par)
+QATS.display(xx0, resVit$xx, par)
+}
+
 }

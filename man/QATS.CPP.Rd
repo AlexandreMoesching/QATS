@@ -2,27 +2,43 @@
 % Please edit documentation in R/QATS.R
 \name{QATS.CPP}
 \alias{QATS.CPP}
-\title{Quick Adaptive Ternary Segmentation, C++ version}
+\title{Quick Adaptive Ternary Segmentation (C++ backend)}
 \usage{
 QATS.CPP(
   par,
-  opts = list(n.seeds = 3, d0 = 3, SS = NULL, rotate = FALSE, n.rep = 1)
+  opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE, n.rep = 1L)
 )
 }
 \arguments{
-\item{par}{Model parameters}
+\item{par}{A list with components
+\describe{
+\item{n}{(integer) length of the sequence}
+\item{m}{(integer) number of hidden states}
+\item{yy}{(numeric vector) observations}
+\item{logPi}{(numeric vector length m) initial log-probabilities}
+\item{qq}{(matrix m×m) log-transition matrix}
+\item{GG}{(matrix m×n) cumulative log-emissions}
+}}
 
-\item{opts}{A list of options for the estimation. Default is \code{opts =
-list(n.seeds = 3, d0 = 3, rotate = FALSE, n.rep = 1)} where
-\code{n.seeds} is the number of seeds for the optimistic search,
-\code{d0} is the size of the smallest search interval,
-\code{SS} is the initial partition,
-\code{rotate} indicates whether or not the gain functions have to be rotated,
-\code{n.rep} is the umber of repetitions (for timing).}
+\item{opts}{A list of options
+\describe{
+\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search}
+\item{d0}{(integer ≥ 1) minimum window width}
+\item{SS}{(integer matrix 2×k) optional initial partition rows = [l,r]}
+\item{rotate}{(logical) whether to apply linear “rotation” adjustment}
+\item{n.rep}{integer ≥ 1; number of repetitions for timing of C++ version (default 1)}
+}}
 }
 \value{
-Estimated sequence, its probability and estimation time
+A list with
+\describe{
+\item{xx}{(integer vector length n) estimated hidden path}
+\item{logp}{(numeric) log-probability of \code{xx}}
+\item{time}{(numeric) average seconds per call}
+\item{time_ms}{(numeric) average microseconds per call}
+}
 }
 \description{
-Quick Adaptive Ternary Segmentation, C++ version
+Exactly like \code{QATS.R()}, but calls the underlying C++ implementation
+for the inner loop, and optionally times it.
 }

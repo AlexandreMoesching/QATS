@@ -26,6 +26,8 @@ Assuming that the observation sequence is stored as specific cumulative sums, we
 
 QATS and Viterbi algorithm, as well as algorithms to compute the generalized risk-based estimator of [Lember and Koloydenko (2014)](https://dl.acm.org/doi/10.5555/2627435.2627436) and the K-segment approach of [Titsias, Holmes and Yau (2016)](https://doi.org/10.1080/01621459.2014.998762) are implemented in both **R** and **C++**.
 
+Our implementation of QATS targets the homogeneous hidden‐Markov‐model decoding problem, meaning that the transition matrix $\boldsymbol{p}^{(k)} = \boldsymbol{p}$, for all $k=1,\ldots,n-1$, remains fixed over time. However, our implementation imposes no homogeneity requirement on the emission side: it only needs the cumulative sums of the log‐emission densities at each time point (which may vary arbitrarily). If you ever need a fully non‐homogeneous HMM--where $\boldsymbol{p}^{(k)}$ changes with $k$--you can swap out each use of the static $\boldsymbol{p}$ in the code for the time-indexed $\boldsymbol{p}^{(k)}$ when computing transition log‐probabilities. This should come at no resulting increase in computational time.
+
 ## Installation
 
 You can install the development version of **QATS** from [GitHub](https://github.com/) with:
