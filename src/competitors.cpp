@@ -37,13 +37,15 @@ List Viterbi_timer_cpp(int n_rep,
 //' Viterbi decoder
 //'
 //' @param xx Pre-declared sequence to be updated
+//' @param zeta Back-pointer matrix (m x n)
+//' @param rho Score matrix (m x n)
 //' @param n Length of the observation sequence
 //' @param m Cardinality of the state space
 //' @param logPi Initial log-distribution
 //' @param qq Log-transition matrix
 //' @param g_mseq Log-densities of the emission distributions
 //'
-//' @return Estimated sequence
+//' @return Updates xx, zeta, and rho in place
 //' @keywords internal
 // [[Rcpp::export]]
 void Viterbi_cpp(arma::ivec& xx,

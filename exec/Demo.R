@@ -34,7 +34,8 @@ nc <- sum(diff(xx0) != 0)
 message("Number of changes in xx0: ", nc)
 
 # Show the “true” fit
-display.result(xx0, par = par_true, yy = yy)
+display.result(xx0, par = par_true, yy = yy) +
+  ggtitle("True hidden sequence")
 
 # ── 3. Define & run all methods ────────────────────────────────────────────────
 
@@ -110,7 +111,8 @@ print(metrics_tbl)
 xx_vit  <- results_tbl %>% filter(label == "Viterbi") %>% pull(xx) %>% .[[1]]
 xx_q5   <- results_tbl %>% filter(label == "QATS_5")  %>% pull(xx) %>% .[[1]]
 
-display.result(xx0, xx_vit, xx_q5, par_true)
+display.result(xx0, xx_vit, xx_q5, par_true) +
+  ggtitle("Truth (black), Viterbi (blue), QATS (red)")
 
 # ── 6. (Optional) step‐by‐step display ─────────────────────────────────────────
 

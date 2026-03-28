@@ -4,29 +4,21 @@
 \alias{QATS.CPP}
 \title{Quick Adaptive Ternary Segmentation (C++ backend)}
 \usage{
-QATS.CPP(
-  par,
-  opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE, n.rep = 1L)
-)
+QATS.CPP(par, opts = list())
 }
 \arguments{
 \item{par}{A list with components
 \describe{
 \item{n}{(integer) length of the sequence}
 \item{m}{(integer) number of hidden states}
-\item{yy}{(numeric vector) observations}
 \item{logPi}{(numeric vector length m) initial log-probabilities}
 \item{qq}{(matrix m×m) log-transition matrix}
 \item{GG}{(matrix m×n) cumulative log-emissions}
 }}
 
-\item{opts}{A list of options
+\item{opts}{Same as \code{QATS.R()} with one extra field:
 \describe{
-\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search}
-\item{d0}{(integer ≥ 1) minimum window width}
-\item{SS}{(integer matrix 2×k) optional initial partition rows = [l,r]}
-\item{rotate}{(logical) whether to apply linear “rotation” adjustment}
-\item{n.rep}{integer ≥ 1; number of repetitions for timing of C++ version (default 1)}
+\item{n.rep}{(integer ≥ 1) repetitions for timing (default 1)}
 }}
 }
 \value{
@@ -39,6 +31,6 @@ A list with
 }
 }
 \description{
-Exactly like \code{QATS.R()}, but calls the underlying C++ implementation
-for the inner loop, and optionally times it.
+Exactly like \code{QATS.R()}, but delegates the inner loop to the C++
+implementation for maximum performance, and optionally times repeated runs.
 }

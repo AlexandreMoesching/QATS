@@ -5,6 +5,7 @@ NULL
 
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
+#' @import ggplot2
 ## usethis namespace: end
 NULL
 

@@ -18,7 +18,7 @@ display.result(xx.0, xx.1 = NULL, xx.2 = NULL, par, yy = NULL)
 \item{yy}{The observation sequence}
 }
 \value{
-Plot
+A ggplot object (also printed)
 }
 \description{
 Display final results

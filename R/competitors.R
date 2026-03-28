@@ -81,21 +81,25 @@ Viterbi.CPP <- function(par, n.rep = 1) {
 
 #' G-classifier, R version
 #'
+#' @param par Model parameters
 #' @param C1 Constant 1
 #' @param C2 Constant 2
 #' @param C3 Constant 3
 #' @param C4 Constant 4
-#' @param par Model parameters
+#'
+#' @details
+#' Special cases depending on the constants:
+#' \itemize{
+#'   \item C1 = C3 = C4 = 0: Viterbi
+#'   \item C2 = C3 = C4 = 0: pointwise MAP
+#'   \item C1 = C2 = C3 = 0: maximum prior probability
+#'   \item C1 = C2 = C4 = 0: marginal prior mode
+#'   \item C1 = C3 = 0: generalized Viterbi
+#' }
 #'
 #' @return Estimated sequence, its probability and estimation time
 #' @export
-G_classifier.R <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0)
-  # C1 = C3 = C4 = 0  <->  Viterbi
-  # C2 = C3 = C4 = 0  <->  pointwise MAP
-  # C1 = C2 = C3 = 0  <->  maximum prior probability
-  # C1 = C2 = C4 = 0  <->  marginal prior mode
-  # C1 = C3 = 0       <->  generalized Viterbi with suppressed contribution of data
-{
+G_classifier.R <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0) {
   # Load some variables
   m <- par$m
   mseq <- par$mseq
@@ -202,21 +206,17 @@ G_classifier.R <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0)
 
 #' G-classifier, C++ version
 #'
+#' @param par Model parameters
 #' @param C1 Constant 1
 #' @param C2 Constant 2
 #' @param C3 Constant 3
 #' @param C4 Constant 4
-#' @param par Model parameters
+#'
+#' @inherit G_classifier.R details
 #'
 #' @return Estimated sequence, its probability and estimation time
 #' @export
-G_classifier.CPP <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0)
-  # C1 = C3 = C4 = 0  <->  Viterbi
-  # C2 = C3 = C4 = 0  <->  pointwise MAP
-  # C1 = C2 = C3 = 0  <->  maximum prior probability
-  # C1 = C2 = C4 = 0  <->  marginal prior mode
-  # C1 = C3 = 0       <->  generalized Viterbi with suppressed contribution of data
-{
+G_classifier.CPP <- function(par, C1 = 0, C2 = 1, C3 = 0, C4 = 0) {
   # Load some variables
   m <- par$m
   n <- par$n

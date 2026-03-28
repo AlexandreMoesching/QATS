@@ -45,7 +45,7 @@ test_that("QATS path log-prob >= constant-path log-prob", {
   # constant best path
   const  <- argH1(1L, par$n, 1L, par)
   xx_c   <- rep(const$i_star, par$n)
-  lp_c   <- G0(xx_c, par)
+  lp_c   <- QATS:::G0(xx_c, par)
   expect_true(res_Q$logp >= lp_c - 1e-10)
 })
 

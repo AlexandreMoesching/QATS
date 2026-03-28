@@ -38,13 +38,15 @@ Viterbi_timer_cpp <- function(n_rep, n, m, logPi, qq, g_mseq) {
 #' Viterbi decoder
 #'
 #' @param xx Pre-declared sequence to be updated
+#' @param zeta Back-pointer matrix (m x n)
+#' @param rho Score matrix (m x n)
 #' @param n Length of the observation sequence
 #' @param m Cardinality of the state space
 #' @param logPi Initial log-distribution
 #' @param qq Log-transition matrix
 #' @param g_mseq Log-densities of the emission distributions
 #'
-#' @return Estimated sequence
+#' @return Updates xx, zeta, and rho in place
 #' @keywords internal
 Viterbi_cpp <- function(xx, zeta, rho, n, m, logPi, qq, g_mseq) {
     invisible(.Call(`_QATS_Viterbi_cpp`, xx, zeta, rho, n, m, logPi, qq, g_mseq))

@@ -45,7 +45,7 @@ Pi <- rep(1, m) / m
 pp <- matrix(K / ((n - 1) * (m - 1)), nrow = m, ncol = m)
 diag(pp) <- 1 - K / (n - 1)
 
-d0 <- 3; n_seeds <- c(1,2,3,5); rotate <- FALSE; n_rep <- 1e1; n_sim <- 1e2
+d0 <- 3; n_seeds <- c(1, 2, 3, 5); rotate <- FALSE; n_rep <- 1e1; n_sim <- 1e2
 
 res <- QATS_nseeds_norm(n, m, Pi, pp, mu, sigma,
                         d0, n_seeds, rotate, n_rep, n_sim)

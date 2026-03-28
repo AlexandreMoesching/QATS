@@ -96,14 +96,14 @@ for (t in 1:(n-1)) {
       denom <- denom + xi[i, j, t]
     }
   }
-  xi[,,t] <- xi[,,t] / denom
+  xi[, , t] <- xi[, , t] / denom
 }
 
-pi.hat <- gamma[,1]
-A.hat <- apply(xi, c(1,2), sum) / rowSums(gamma[, -n])
+pi.hat <- gamma[, 1]
+A.hat <- apply(xi, c(1, 2), sum) / rowSums(gamma[, -n])
 mu.hat <- rowSums(t(t(gamma) * yy)) / rowSums(gamma)
 sigma.hat <- sapply(1:m, function(i) {
-  sqrt(sum(gamma[i,] * (yy - mu.hat[i])^2) / sum(gamma[i,]))
+  sqrt(sum(gamma[i, ] * (yy - mu.hat[i])^2) / sum(gamma[i, ]))
 })
 B.hat <- function(j, y) dnorm(y, mean = mu.hat[j], sd = sigma.hat[j])
 

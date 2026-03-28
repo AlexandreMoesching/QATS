@@ -4,14 +4,13 @@
 \alias{QATS.R}
 \title{Quick Adaptive Ternary Segmentation (pure R)}
 \usage{
-QATS.R(par, opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE))
+QATS.R(par, opts = list())
 }
 \arguments{
 \item{par}{A list with components
 \describe{
 \item{n}{(integer) length of the sequence}
 \item{m}{(integer) number of hidden states}
-\item{yy}{(numeric vector) observations}
 \item{logPi}{(numeric vector length m) initial log-probabilities}
 \item{qq}{(matrix m×m) log-transition matrix}
 \item{GG}{(matrix m×n) cumulative log-emissions}
@@ -19,11 +18,10 @@ QATS.R(par, opts = list(n.seeds = 3L, d0 = 3L, SS = NULL, rotate = FALSE))
 
 \item{opts}{A list of options
 \describe{
-\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search}
-\item{d0}{(integer ≥ 1) minimum window width}
-\item{SS}{(integer matrix 2×k) optional initial partition rows = [l,r]}
-\item{rotate}{(logical) whether to apply linear “rotation” adjustment}
-\item{n.rep}{integer ≥ 1; number of repetitions for timing of C++ version (default 1)}
+\item{n.seeds}{(integer ≥ 1) number of seeds for optimistic search (default 3)}
+\item{d0}{(integer ≥ 1) minimum window width (default 3)}
+\item{SS}{(integer matrix, n_segments × 2) optional initial partition; each row [l, r]}
+\item{rotate}{(logical) apply linear rotation adjustment (default FALSE)}
 }}
 }
 \value{
@@ -36,13 +34,14 @@ A list with
 }
 \description{
 Given an HMM parameter object, do a greedy ternary segmentation of the
-observation sequence by repeatedly inserting up to two change‐points per
+observation sequence by repeatedly inserting up to two change-points per
 segment where they most improve the log-likelihood.
 }
 \examples{
 \dontrun{
+set.seed(1)
 par <- sample.HMM(
-  n = 100, m = 3, K = 5,
+  n = 200, m = 3, K = 5,
   emi.dist = "normal",
   emi.param = list(mu = 1:3, sigma = rep(1, 3))
 )

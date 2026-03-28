@@ -7,7 +7,7 @@
 Viterbi_timer_cpp(n_rep, n, m, logPi, qq, g_mseq)
 }
 \arguments{
-\item{n_rep}{Number of repetition (for timing)}
+\item{n_rep}{Number of repetitions (for timing)}
 
 \item{n}{Length of the observation sequence}
 

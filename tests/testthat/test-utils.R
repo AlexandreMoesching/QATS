@@ -31,7 +31,7 @@ test_that("V_measure: output is in [0, 1]", {
 test_that("SS.zz_xx and xx_SS.zz are inverses", {
   xx <- c(1, 1, 2, 2, 2, 3, 1, 1)
   n  <- length(xx)
-  res <- SS.zz_xx(xx, n)
-  xx2 <- xx_SS.zz(res$SS, res$zz)
+  res <- QATS:::SS.zz_xx(xx, n)
+  xx2 <- QATS:::xx_SS.zz(res$SS, res$zz)
   expect_equal(xx2, xx)
 })

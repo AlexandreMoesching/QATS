@@ -9,6 +9,10 @@ Viterbi_cpp(xx, zeta, rho, n, m, logPi, qq, g_mseq)
 \arguments{
 \item{xx}{Pre-declared sequence to be updated}
 
+\item{zeta}{Back-pointer matrix (m x n)}
+
+\item{rho}{Score matrix (m x n)}
+
 \item{n}{Length of the observation sequence}
 
 \item{m}{Cardinality of the state space}
@@ -20,7 +24,7 @@ Viterbi_cpp(xx, zeta, rho, n, m, logPi, qq, g_mseq)
 \item{g_mseq}{Log-densities of the emission distributions}
 }
 \value{
-Estimated sequence
+Updates xx, zeta, and rho in place
 }
 \description{
 Viterbi decoder

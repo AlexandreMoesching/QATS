@@ -31,7 +31,7 @@ for (m in 2) { # c(2, 3, 5)
                      dimnames = list(NULL, c("n", "K", "pp_offdiag", "pp_diag")))
       for (n.pow in 5) { # 3:6
         n <- 10^n.pow + 1
-        K.seq <- c(outer(c(1,2,5), 10^(0:7))); K.seq <- K.seq[K.seq < n/5e1]
+        K.seq <- c(outer(c(1, 2, 5), 10^(0:7))); K.seq <- K.seq[K.seq < n / 5e1]
         nKpp <- rbind(nKpp, cbind(n, K.seq, K.seq / ((n - 1) * (m - 1)), 1 - K.seq / (n - 1)))
       }
       nKpp <- do.call(rbind, replicate(n.sim, nKpp, simplify = FALSE))

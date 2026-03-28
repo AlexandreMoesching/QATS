@@ -224,7 +224,7 @@ df_sum %>%
   ggplot(aes(x = p)) +
   geom_ribbon(aes(ymin = q_25, ymax = q_75, fill = nu_disp, col = nu_disp, lty = method), alpha = 0.2, lwd = 0.2) +
   geom_line(aes(y = q_50, col = nu_disp, lty = method), lwd = 0.5) +
-  #scale_x_log10() +
+  # scale_x_log10() +
   scale_linetype_manual(values = c(
     "Both" = 1,
     "QATS" = 1,

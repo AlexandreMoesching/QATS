@@ -33,6 +33,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
+    ggplot2,
     graphics,
     grDevices,
     Rcpp,
@@ -42,6 +43,7 @@ LinkingTo:
     RcppArmadillo
 Suggests:
     plot3D,
+    scales,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

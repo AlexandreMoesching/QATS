@@ -21,7 +21,7 @@ decoded paths.
 > Moesching, A., Li, H. and Munk, A. (2025). Quick Adaptive Ternary
 > Segmentation for decoding hidden Markov models. *Journal of
 > Computational and Graphical Statistics*.
-> [doi:10.1080/10618600.2025.2467654](https://doi.org/10.1080/10618600.2025.2467654)
+> [doi:10.1080/10618600.2025.2572328](https://doi.org/10.1080/10618600.2025.2572328)
 
 The package also provides C++ implementations of the Viterbi algorithm,
 pointwise MAP (PMAP), the generalized risk-based classifier of [Lember
@@ -42,6 +42,16 @@ devtools::install_github("AlexandreMoesching/QATS")
 
 ``` r
 library(QATS)
+library(ggplot2)
+
+theme_set(
+  theme_minimal(base_size = 13) +
+    theme(
+      panel.grid.minor = element_blank(),
+      plot.title = element_text(face = "bold", size = 14)
+    )
+)
+
 set.seed(123)
 
 # Model parameters
@@ -57,8 +67,8 @@ par <- sample.HMM(
   emi.dist = "normal",
   emi.param = list(mu = mu, sigma = sigma)
 )
-xx.0 <- par$xx               # true hidden states
-yy   <- par$yy               # observations
+xx.0 <- par$xx
+yy   <- par$yy
 
 # Actual number of change points
 sum(diff(xx.0) != 0)
@@ -72,58 +82,59 @@ cumulative sums. This list is passed directly to the decoding functions.
 ### Visualising the HMM
 
 ``` r
-display.result(xx.0, par = par, yy = yy)
+df <- data.frame(k = seq_len(n), y = yy, x = xx.0)
+
+ggplot(df) +
+  geom_point(aes(k, y), colour = "grey70", size = 0.3) +
+  geom_step(aes(k, x), linewidth = 0.8) +
+  scale_y_continuous(breaks = 1:m) +
+  labs(x = expression(italic(k)), y = expression(italic(x[k] * " / " * y[k])))
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" alt="" width="90%" />
+<img src="man/figures/README-hmm-data-1.png" alt="" width="90%" />
 
 ### Decoding
 
 ``` r
-# Viterbi
-res <- Viterbi.CPP(par)
-xx.1 <- res$xx
-(tt <- as.vector(res$time)) # seconds
-#> [1] 1.5125e-05
+vit  <- Viterbi.CPP(par)
+pmap <- PMAP.CPP(par)
+qats <- QATS.CPP(par)
 ```
 
 ``` r
-# PMAP
-res <- PMAP.CPP(par)
-xx.1.PMAP <- res$xx
-(tt <- as.vector(res$time))
-#> [1] 3.9708e-05
+df_paths <- data.frame(
+  k = rep(seq_len(n), 3),
+  x = c(xx.0, vit$xx, qats$xx),
+  Method = factor(
+    rep(c("Truth", "Viterbi", "QATS"), each = n),
+    levels = c("Truth", "Viterbi", "QATS")
+  )
+)
+
+ggplot(df_paths, aes(k, x, colour = Method, linewidth = Method)) +
+  geom_step() +
+  scale_colour_manual(values = c("Truth" = "black", "Viterbi" = "#3182bd", "QATS" = "#e34a33")) +
+  scale_linewidth_manual(values = c("Truth" = 1, "Viterbi" = 0.6, "QATS" = 0.6)) +
+  scale_y_continuous(breaks = 1:m) +
+  labs(x = expression(italic(k)), y = expression(italic(x[k])))
 ```
 
-``` r
-# QATS
-res <- QATS.CPP(par)
-xx.2 <- res$xx
-(tt <- as.vector(res$time))
-#> [1] 0.000137209
-```
+<img src="man/figures/README-decode-plot-1.png" alt="" width="90%" />
 
-True path (black), Viterbi (blue), QATS (red):
+All three decoders agree on this example:
 
 ``` r
-display.result(xx.0, xx.1, xx.2, par)
-```
-
-<img src="man/figures/README-unnamed-chunk-8-1.png" alt="" width="90%" />
-
-Viterbi and QATS produce the same path here, and both misclassify only a
-handful of states:
-
-``` r
-c(sum(xx.0 != xx.1), sum(xx.1 != xx.1.PMAP), sum(xx.1 != xx.2))
-#> [1] 6 2 0
+c(Viterbi = sum(xx.0 != vit$xx),
+  PMAP    = sum(xx.0 != pmap$xx),
+  QATS    = sum(xx.0 != qats$xx))
+#> Viterbi    PMAP    QATS 
+#>       6       4       6
 ```
 
 ## Benchmark: all decoders on a long sequence
 
 The advantage of QATS becomes clear on longer sequences. Below, we
-decode a sequence of length $10^6$ and compare accuracy and runtime
-across all implemented methods.
+decode a sequence of length $n = 10^6$ and compare runtime and accuracy.
 
 ``` r
 n <- 1e6 + 1
@@ -134,97 +145,77 @@ par <- sample.HMM(
   emi.param = list(mu = mu, sigma = sigma)
 )
 xx.0 <- par$xx
-sum(diff(xx.0) != 0)
-#> [1] 12
 
-# 1. Viterbi
-res <- Viterbi.CPP(par)
-xx <- matrix(res$xx, nrow = 1)
-tt <- as.vector(res$time)
-rownames(xx)[1] <- names(tt)[1] <- "Viterbi"
-
-# 2. Pointwise MAP - manual
-res <- PMAP.CPP(par)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "pMAP-man"
-
-# 3. Pointwise MAP
-res <- G_classifier.CPP(par, 1, 0, 0, 0)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "pMAP"
-
-# 4. Maximum prior probability
-res <- G_classifier.CPP(par, 0, 0, 0, 1)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "MPP"
-
-# 5. Marginal prior mode
-res <- G_classifier.CPP(par, 0, 0, 1, 0)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "MPM"
-
-# 6. Generalized Viterbi
-res <- G_classifier.CPP(par, 0, 1, 0, 1)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "gViterbi"
-
-# 7. K-segmentation
-K_max <- K + 4
-res <- K_segmentation.CPP(par, K_max)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, rep(as.vector(res$time), K_max))
-rownames(xx)[length(tt) - ((K_max - 1):0)] <-
-  names(tt)[length(tt) - ((K_max - 1):0)] <-
-  paste(rep("K-seg", K_max), 1:K_max)
-
-# 8. QATS
-res <- QATS.CPP(par)
-xx <- rbind(xx, res$xx)
-tt <- c(tt, as.vector(res$time))
-rownames(xx)[length(tt)] <- names(tt)[length(tt)] <- "QATS"
-
-# Compute errors
-n.estim <- nrow(xx)
-fit_eval <- matrix(0, nrow = n.estim, ncol = 4)
-colnames(fit_eval) <- c("l0", "l1", "l2", "V-Measure")
-
-for (w in 1:n.estim) {
-  fit_eval[w, 1] <- lp_norm(xx.0, xx[w, ], 0)
-  fit_eval[w, 2] <- lp_norm(xx.0, xx[w, ], 1)
-  fit_eval[w, 3] <- lp_norm(xx.0, xx[w, ], 2)
-  fit_eval[w, 4] <- V_measure(xx.0, xx[w, ])
+# Collect results into a data frame
+run <- function(name, xx_hat, time_s) {
+  data.frame(
+    Method     = name,
+    time       = time_s,
+    l0         = lp_norm(xx.0, xx_hat, 0),
+    V_measure  = V_measure(xx.0, xx_hat)
+  )
 }
-rownames(fit_eval) <- names(tt)
 
-cbind(fit_eval, tt)
-#>                    l0           l1           l2 V-Measure          tt
-#> Viterbi  5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.013584417
-#> pMAP-man 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.038621292
-#> pMAP     6.999993e-06 6.999993e-06 2.645749e-06 0.9999410 0.103920937
-#> MPP      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.056120872
-#> MPM      8.613451e-01 2.139248e+00 2.507768e-03 0.0000000 0.055412054
-#> gViterbi 5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.054715872
-#> K-seg 1  5.979274e-01 9.759230e-01 1.316021e-03 0.0000000 0.463258028
-#> K-seg 2  4.597595e-01 6.995873e-01 1.085929e-03 0.2491195 0.463258028
-#> K-seg 3  6.750173e-01 7.692662e-01 9.786537e-04 0.3080688 0.463258028
-#> K-seg 4  3.211047e-01 4.222776e-01 7.903308e-04 0.5280141 0.463258028
-#> K-seg 5  2.476548e-01 2.753777e-01 5.751724e-04 0.6969048 0.463258028
-#> K-seg 6  2.199318e-01 2.199318e-01 4.689686e-04 0.7686577 0.463258028
-#> K-seg 7  1.715908e-01 1.715908e-01 4.142350e-04 0.7796504 0.463258028
-#> K-seg 8  1.364359e-01 1.364359e-01 3.693721e-04 0.8115278 0.463258028
-#> K-seg 9  9.011891e-02 9.011891e-02 3.001980e-04 0.8600035 0.463258028
-#> K-seg 10 5.496395e-02 5.496395e-02 2.344438e-04 0.8910202 0.463258028
-#> K-seg 11 4.427496e-02 4.427496e-02 2.104160e-04 0.9038261 0.463258028
-#> QATS     5.999994e-06 5.999994e-06 2.449487e-06 0.9999501 0.000831792
+results <- rbind(
+  {r <- Viterbi.CPP(par);       run("Viterbi",  r$xx, r$time)},
+  {r <- PMAP.CPP(par);          run("PMAP",     r$xx, r$time)},
+  {r <- G_classifier.CPP(par, 0, 1, 0, 1);
+                                 run("gViterbi", r$xx, as.numeric(r$time))},
+  {r <- QATS.CPP(par);          run("QATS",     r$xx, r$time)}
+)
+
+# K-segmentation (returns K_max paths)
+K_max <- 11
+r <- K_segmentation.CPP(par, K_max)
+for (s in seq_len(K_max)) {
+  results <- rbind(results, run(
+    paste0("K-seg (", s, ")"),
+    r$xx[s, ],
+    as.numeric(r$time)
+  ))
+}
+
+results$Method <- factor(results$Method, levels = results$Method)
 ```
 
-QATS achieves accuracy comparable to Viterbi while being roughly 20x
-faster on this sequence length.
+### Runtime
+
+``` r
+# Highlight the main methods (not individual K-seg variants)
+main <- results[!grepl("^K-seg \\(", results$Method) | results$Method == "K-seg (11)", ]
+main$Method <- droplevels(main$Method)
+levels(main$Method)[levels(main$Method) == "K-seg (11)"] <- "K-seg"
+
+ggplot(main, aes(Method, time)) +
+  geom_col(fill = "#3182bd", width = 0.6) +
+  geom_text(aes(label = scales::number(time, accuracy = 0.001, suffix = " s")),
+            vjust = -0.4, size = 3.5) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(x = NULL, y = "Time (seconds)",
+       title = expression("Runtime comparison," ~ n == 10^6)) +
+  theme(panel.grid.major.x = element_blank())
+```
+
+<img src="man/figures/README-bench-time-1.png" alt="" width="90%" />
+
+### Accuracy
+
+``` r
+ggplot(results, aes(Method, V_measure)) +
+  geom_col(fill = "#2ca25f", width = 0.6) +
+  geom_text(aes(label = sprintf("%.3f", V_measure)),
+            vjust = -0.4, size = 3) +
+  scale_y_continuous(limits = c(0, 1.1), breaks = seq(0, 1, 0.25)) +
+  labs(x = NULL, y = "V-Measure",
+       title = expression("Accuracy comparison," ~ n == 10^6)) +
+  theme(panel.grid.major.x = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+<img src="man/figures/README-bench-accuracy-1.png" alt="" width="90%" />
+
+QATS matches Viterbi in accuracy while running significantly faster on
+long sequences.
 
 ## Step-by-step visualisation of QATS
 
@@ -264,5 +255,5 @@ If you use QATS in your research, please cite:
       title   = {Quick Adaptive Ternary Segmentation for Decoding Hidden {Markov} Models},
       journal = {Journal of Computational and Graphical Statistics},
       year    = {2025},
-      doi     = {10.1080/10618600.2025.2467654}
+      doi     = {10.1080/10618600.2025.2572328}
     }

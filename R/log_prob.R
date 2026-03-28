@@ -1,3 +1,10 @@
+#' Log-probability of a hidden path
+#'
+#' @param xx Vector of hidden states
+#' @param par Model parameters
+#'
+#' @return Scalar log-probability
+#' @keywords internal
 G0 <- function(xx, par) {
   kk <- which(diff(xx) != 0)
   SS <- cbind(c(1, kk + 1), c(kk, par$n))
@@ -24,6 +31,16 @@ G0 <- function(xx, par) {
   return(tmp0 + tmp1 + tmp2 + tmp3)
 }
 
+#' Score of a one-segment path on an interval
+#'
+#' @param l Left endpoint of the interval
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param i1 State of the segment
+#' @param par Model parameters
+#'
+#' @return Scalar score
+#' @keywords internal
 G1 <- function(l, r, x0, i1, par) {
   qq <- par$qq
   GG <- par$GG
@@ -34,6 +51,18 @@ G1 <- function(l, r, x0, i1, par) {
   return(sum(tmp))
 }
 
+#' Score of a two-segment path on an interval
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 Change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param i1 State of the first segment
+#' @param i2 State of the second segment
+#' @param par Model parameters
+#'
+#' @return Scalar score
+#' @keywords internal
 G2 <- function(l, k1, r, x0, i1, i2, par) {
   qq <- par$qq
   GG <- par$GG
@@ -47,6 +76,20 @@ G2 <- function(l, k1, r, x0, i1, i2, par) {
   return(sum(tmp))
 }
 
+#' Score of a three-segment path on an interval
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 First change point
+#' @param k2 Second change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param i1 State of the first segment
+#' @param i2 State of the second segment
+#' @param i3 State of the third segment
+#' @param par Model parameters
+#'
+#' @return Scalar score
+#' @keywords internal
 G3 <- function(l, k1, k2, r, x0, i1, i2, i3, par) {
   qq <- par$qq
   GG <- par$GG
@@ -63,6 +106,15 @@ G3 <- function(l, k1, k2, r, x0, i1, i2, i3, par) {
   return(sum(tmp))
 }
 
+#' Best one-segment score on an interval, maximised over states
+#'
+#' @param l Left endpoint of the interval
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param par Model parameters
+#'
+#' @return Scalar best score
+#' @keywords internal
 H1 <- function(l, r, x0, par) {
   h_star <- -Inf
   for (i1 in par$mseq) {
@@ -74,6 +126,16 @@ H1 <- function(l, r, x0, par) {
   return(h_star)
 }
 
+#' Best two-segment score on an interval, maximised over states
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 Change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param par Model parameters
+#'
+#' @return Scalar best score
+#' @keywords internal
 H2 <- function(l, k1, r, x0, par) {
   mseq <- par$mseq
   h_star <- -Inf
@@ -88,6 +150,17 @@ H2 <- function(l, k1, r, x0, par) {
   return(h_star)
 }
 
+#' Best three-segment score on an interval, maximised over states
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 First change point
+#' @param k2 Second change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param par Model parameters
+#'
+#' @return Scalar best score
+#' @keywords internal
 H3 <- function(l, k1, k2, r, x0, par) {
   mseq <- par$mseq
   h_star <- -Inf
@@ -104,18 +177,29 @@ H3 <- function(l, k1, k2, r, x0, par) {
   return(h_star)
 }
 
+#' Dispatch to H1, H2, or H3 depending on the change-point configuration
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 First candidate change point
+#' @param k2 Second candidate change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param par Model parameters
+#'
+#' @return Scalar best score
+#' @keywords internal
 HD_wrap <- function(l, k1, k2, r, x0, par) {
   kk <- unique(sort(c(k1, k2)))
   if (length(kk) == 2) {
-    if (l < kk[1]) { # Then l < k1 < k2 <= r
+    if (l < kk[1]) {
       h_star <- H3(l, kk[1], kk[2], r, x0, par)
-    } else { # Then l = k1 < k2 <= r
+    } else {
       h_star <- H2(l, kk[2], r, x0, par)
     }
   } else {
-    if (l < kk) { # Then l < k1 = k2 <= r
+    if (l < kk) {
       h_star <- H2(l, kk, r, x0, par)
-    } else { # Then l = k1 = k2 <= r
+    } else {
       h_star <- H1(l, r, x0, par)
     }
   }
@@ -182,7 +266,7 @@ argH2 <- function(l, k1, r, x0, par) {
   ))
 }
 
-#' Compute best path with three segments and jump at k1,k2 on the interval l:r
+#' Compute best path with three segments and jumps at k1, k2 on the interval l:r
 #'
 #' @param l Left endpoint of the interval
 #' @param k1 First change point
@@ -217,18 +301,30 @@ argH3 <- function(l, k1, k2, r, x0, par) {
   ))
 }
 
+#' Dispatch to argH1, argH2, or argH3 depending on the change-point
+#' configuration
+#'
+#' @param l Left endpoint of the interval
+#' @param k1 First candidate change point
+#' @param k2 Second candidate change point
+#' @param r Right endpoint of the interval
+#' @param x0 Previous state
+#' @param par Model parameters
+#'
+#' @return List with k_star, i_star, h_star
+#' @keywords internal
 argHD_wrap <- function(l, k1, k2, r, x0, par) {
   kk <- unique(sort(c(k1, k2)))
   if (length(kk) == 2) {
-    if (l < kk[1]) { # Then l < k1 < k2 <= r
+    if (l < kk[1]) {
       tmp <- argH3(l, kk[1], kk[2], r, x0, par)
-    } else { # Then l = k1 < k2 <= r
+    } else {
       tmp <- argH2(l, kk[2], r, x0, par)
     }
   } else {
-    if (l < kk) { # Then l < k1 = k2 <= r
+    if (l < kk) {
       tmp <- argH2(l, kk, r, x0, par)
-    } else { # Then l = k1 = k2 <= r
+    } else {
       tmp <- argH1(l, r, x0, par)
     }
   }

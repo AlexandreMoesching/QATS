@@ -26,7 +26,7 @@ display.1(
 
 \item{xx.1}{1st estimated path}
 
-\item{xx.2}{2nd 2stimated path}
+\item{xx.2}{2nd estimated path}
 
 \item{par}{Model parameters}
 
@@ -46,7 +46,7 @@ display.1(
 
 \item{res2}{Matrix of 2-dimensional gain}
 
-\item{t_star2}{True maxium}
+\item{t_star2}{True maximum}
 
 \item{k_star2}{Maximum found}
 }

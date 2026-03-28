@@ -98,4 +98,5 @@ print(metrics_tbl)
 viterbi_seq <- results_tbl %>% filter(label == "Viterbi")   %>% pull(xx) %>% .[[1]]
 qats5_seq   <- results_tbl %>% filter(label == "QATS_5")    %>% pull(xx) %>% .[[1]]
 
-display.result(par_true$xx, viterbi_seq, qats5_seq, par_true)
+display.result(par_true$xx, viterbi_seq, qats5_seq, par_true) +
+  ggtitle("Truth (black), Viterbi (blue), QATS (red)")

@@ -10,7 +10,7 @@ make_par <- function(seed = 1, n = 50, m = 3, stay = 0.9) {
 
 test_that("G0 returns a finite scalar", {
   par <- make_par()
-  lp  <- G0(par$xx, par)
+  lp  <- QATS:::G0(par$xx, par)
   expect_length(lp, 1L)
   expect_true(is.finite(lp))
 })
@@ -47,11 +47,11 @@ test_that("argH2 h_star equals max G2 over states (argmax consistency)", {
 
   res <- argH2(l, k1, r, x0, par)
   # Verify h_star matches G2 at the returned states
-  expect_equal(res$h_star, G2(l, k1, r, x0, res$i_star[1], res$i_star[2], par),
+  expect_equal(res$h_star, QATS:::G2(l, k1, r, x0, res$i_star[1], res$i_star[2], par),
                tolerance = 1e-12)
   # Verify no other (i1, i2) pair has a higher G2
   best_brute <- max(vapply(par$mseq, function(i1)
     max(vapply(par$mseq[par$mseq != i1], function(i2)
-      G2(l, k1, r, x0, i1, i2, par), numeric(1L))), numeric(1L)))
+      QATS:::G2(l, k1, r, x0, i1, i2, par), numeric(1L))), numeric(1L)))
   expect_equal(res$h_star, best_brute, tolerance = 1e-12)
 })
