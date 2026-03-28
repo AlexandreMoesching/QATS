@@ -1,9 +1,11 @@
 #include "competitors.h"
+using namespace Rcpp;
+using namespace std::chrono;
 
 //' Viterbi decoder, timing in C++
 //'
+//' @param n_rep Number of repetitions (for timing)
 //' @param n Length of the observation sequence
-//' @param n_rep Number of repetition (for timing)
 //' @param m Cardinality of the state space
 //' @param logPi Initial log-distribution
 //' @param qq Log-transition matrix
@@ -12,30 +14,24 @@
 //' @return Estimated sequence
 //' @keywords internal
 // [[Rcpp::export]]
-List Viterbi_timer_cpp(double n_rep,
+List Viterbi_timer_cpp(int n_rep,
                        int n, int m,
                        const arma::vec& logPi,
                        const arma::mat& qq,
                        const arma::mat& g_mseq) {
-  // Preallocation
   arma::ivec xx(n, arma::fill::zeros);
   arma::imat zeta(m, n);
-  arma::mat rho(m, n);
-  // Get starting time point
-  auto start = std::chrono::high_resolution_clock::now();
-  // Do stuff
+  arma::mat  rho(m, n);
+  auto start = high_resolution_clock::now();
   for (int i = 0; i < n_rep; i++) {
     Viterbi_cpp(xx, zeta, rho, n, m, logPi, qq, g_mseq);
   }
-  // Get ending time point
-  auto stop = std::chrono::high_resolution_clock::now();
-  // Compute difference
-  std::chrono::duration<double> time_s = stop - start;
-  std::chrono::duration<double, std::micro> time_ms = stop - start;
-  // Return
-  return List::create(Named("xx") = xx + 1,
-                      Named("time") = time_s.count()/n_rep,
-                      Named("time_ms") = time_ms.count()/n_rep);
+  auto stop = high_resolution_clock::now();
+  duration<double>             time_s  = stop - start;
+  duration<double, std::micro> time_ms = stop - start;
+  return List::create(Named("xx")      = xx + 1,
+                      Named("time")    = time_s.count()  / n_rep,
+                      Named("time_ms") = time_ms.count() / n_rep);
 }
 
 //' Viterbi decoder
@@ -53,28 +49,32 @@ List Viterbi_timer_cpp(double n_rep,
 void Viterbi_cpp(arma::ivec& xx,
                  arma::imat& zeta,
                  arma::mat& rho,
-                 const int& n, const int& m,
+                 int n, int m,
                  const arma::vec& logPi,
                  const arma::mat& qq,
                  const arma::mat& g_mseq) {
-  // Declaration
-  arma::vec tmp(m);
   // Forward pass
-  rho.col(0) = logPi + g_mseq.col(0);
+  for (int j = 0; j < m; j++) rho(j, 0) = logPi(j) + g_mseq(j, 0);
   if (n > 1) {
     for (int k = 1; k < n; k++) {
       for (int i = 0; i < m; i++) {
-        tmp = rho.col(k-1) + qq.col(i);
-        zeta(i, k-1) = tmp.index_max();
-        rho(i, k) = max(tmp) + g_mseq(i, k);
+        // Single pass: find argmax_j and max_j of rho(j, k-1) + qq(j, i)
+        int    best_j   = 0;
+        double best_val = rho(0, k - 1) + qq(0, i);
+        for (int j = 1; j < m; j++) {
+          const double val = rho(j, k - 1) + qq(j, i);
+          if (val > best_val) { best_val = val; best_j = j; }
+        }
+        zeta(i, k - 1) = best_j;
+        rho(i, k)      = best_val + g_mseq(i, k);
       }
     }
   }
   // Backward pass
-  xx[n-1] = rho.col(n-1).index_max();
+  xx[n - 1] = rho.col(n - 1).index_max();
   if (n > 1) {
-    for (int k = n-2; k >= 0; k--) {
-      xx[k] = zeta(xx[k+1], k);
+    for (int k = n - 2; k >= 0; k--) {
+      xx[k] = zeta(xx[k + 1], k);
     }
   }
 }
@@ -102,11 +102,10 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
                            const arma::vec& Pi, const arma::vec& logPi,
                            const arma::mat& pp, const arma::mat& qq,
                            const arma::mat& f_mseq, const arma::mat& g_mseq) {
-  // Declaration
   double C24 = C2 + C4, C234 = C2 + C3 + C4;
   arma::vec prob_x = Pi, tmp(m), xx(n);
   arma::mat logprob_x(m, n), ppT = pp.t(), zeta(m, n), hh(m, n), rho(m, n);
-  // Pre-computing some useful quantities
+  // Marginal log-probabilities of each state at each time
   logprob_x.col(0) = logPi;
   if (n > 1) {
     for (int k = 1; k < n; k++) {
@@ -115,33 +114,34 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
     }
   }
   if (C1 > 0) {
-    // Declaration
     arma::mat alpha(m, n), alpha_bar(m, n);
     arma::vec cc(n), beta_bar(m, arma::fill::ones);
-    // First pass forward
-    tmp = f_mseq.col(0) % Pi;
-    cc[0] = sum(tmp);
-    alpha.col(0) = tmp/cc[0];
+    // Forward pass
+    for (int j = 0; j < m; j++) tmp[j] = f_mseq(j, 0) * Pi(j);
+    cc[0] = 0.0; for (int j = 0; j < m; j++) cc[0] += tmp[j];
+    for (int j = 0; j < m; j++) alpha(j, 0) = tmp[j] / cc[0];
     if (n > 1) {
       for (int k = 1; k < n; k++) {
         for (int i = 0; i < m; i++) {
-          tmp[i] = f_mseq(i, k) * sum(pp.col(i) % alpha.col(k-1));
+          double s = 0.0;
+          for (int j = 0; j < m; j++) s += pp(j, i) * alpha(j, k - 1);
+          tmp[i] = f_mseq(i, k) * s;
         }
-        cc[k] = sum(tmp);
-        alpha.col(k) = tmp/cc[k];
+        cc[k] = 0.0; for (int j = 0; j < m; j++) cc[k] += tmp[j];
+        for (int j = 0; j < m; j++) alpha(j, k) = tmp[j] / cc[k];
       }
     }
-    // First pass backward
-    alpha_bar.col(n-1) = alpha.col(n-1);
+    // Backward pass
+    for (int j = 0; j < m; j++) alpha_bar(j, n - 1) = alpha(j, n - 1);
     if (n > 1) {
-      for (int k = n-2; k >= 0; k--) {
+      for (int k = n - 2; k >= 0; k--) {
         for (int i = 0; i < m; i++) {
-          tmp[i] = sum((arma::vectorise(pp.row(i)) %
-            arma::vectorise(f_mseq.col(k))) %
-            beta_bar);
+          double s = 0.0;
+          for (int j = 0; j < m; j++) s += pp(i, j) * f_mseq(j, k) * beta_bar(j);
+          tmp[i] = s;
         }
-        beta_bar = tmp/cc[k+1];
-        alpha_bar.col(k) = beta_bar % alpha.col(k);
+        for (int j = 0; j < m; j++) beta_bar(j) = tmp[j] / cc[k + 1];
+        for (int j = 0; j < m; j++) alpha_bar(j, k) = beta_bar(j) * alpha(j, k);
       }
     }
     hh         = C1 * log(alpha_bar)        + C2 * g_mseq        + C3   * logprob_x;
@@ -150,29 +150,34 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
     hh         = C2 * g_mseq        + C3   * logprob_x;
     rho.col(0) = C2 * g_mseq.col(0) + C234 * logprob_x.col(0);
   }
-  // Last pass forward
+  // Last forward pass with combined score
   if (n > 1) {
     for (int k = 1; k < n; k++) {
       for (int i = 0; i < m; i++) {
-        tmp = rho.col(k-1) + C24 * qq.col(i);
-        zeta(i, k-1) = tmp.index_max();
-        rho(i, k) = max(tmp) + hh(i, k);
+        int    best_j   = 0;
+        double best_val = rho(0, k - 1) + C24 * qq(0, i);
+        for (int j = 1; j < m; j++) {
+          const double val = rho(j, k - 1) + C24 * qq(j, i);
+          if (val > best_val) { best_val = val; best_j = j; }
+        }
+        zeta(i, k - 1) = best_j;
+        rho(i, k)      = best_val + hh(i, k);
       }
     }
   }
-  // Last pass backward
-  xx[n-1] = rho.col(n-1).index_max();
+  // Backward pass
+  xx[n - 1] = rho.col(n - 1).index_max();
   if (n > 1) {
-    for (int k = n-2; k >= 0; k--) {
-      xx[k] = zeta(xx[k+1], k);
+    for (int k = n - 2; k >= 0; k--) {
+      xx[k] = zeta(xx[k + 1], k);
     }
   }
-  // Return result
   return xx + 1;
 }
 
 //' PMAP-classifier, timing in C++
 //'
+//' @param n_rep Number of repetitions (for timing)
 //' @param n Length of the observation sequence
 //' @param m Cardinality of the state space
 //' @param Pi Initial distribution
@@ -182,31 +187,26 @@ arma::vec G_classifier_cpp(double C1, double C2, double C3, double C4,
 //' @return Estimated sequence
 //' @keywords internal
 // [[Rcpp::export]]
-List PMAP_timer_cpp(double n_rep,
+List PMAP_timer_cpp(int n_rep,
                     int n, int m,
                     const arma::vec& Pi,
                     const arma::mat& pp,
                     const arma::mat& f_mseq) {
-  // Preallocation
   arma::ivec xx(n, arma::fill::zeros);
   arma::mat alpha_hat(m, n), alpha_bar(m, n);
   arma::mat  beta_hat(m, n),  beta_bar(m, n, arma::fill::ones);
   arma::vec cc_inv(n);
-  // Get starting time point
-  auto start = std::chrono::high_resolution_clock::now();
-  // Do stuff
+  auto start = high_resolution_clock::now();
   for (int i = 0; i < n_rep; i++) {
-    PMAP_cpp(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv, n, m, Pi, pp, f_mseq);
+    PMAP_cpp(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv,
+             n, m, Pi, pp, f_mseq);
   }
-  // Get ending time point
-  auto stop = std::chrono::high_resolution_clock::now();
-  // Compute difference
-  std::chrono::duration<double> time_s = stop - start;
-  std::chrono::duration<double, std::micro> time_ms = stop - start;
-  // Return
-  return List::create(Named("xx") = xx + 1,
-                      Named("time") = time_s.count()/n_rep,
-                      Named("time_ms") = time_ms.count()/n_rep);
+  auto stop = high_resolution_clock::now();
+  duration<double>             time_s  = stop - start;
+  duration<double, std::micro> time_ms = stop - start;
+  return List::create(Named("xx")      = xx + 1,
+                      Named("time")    = time_s.count()  / n_rep,
+                      Named("time_ms") = time_ms.count() / n_rep);
 }
 
 //' PMAP-classifier
@@ -226,47 +226,51 @@ void PMAP_cpp(arma::ivec& xx,
               arma::mat& beta_hat,
               arma::mat& beta_bar,
               arma::vec& cc_inv,
-              const int& n,
-              const int& m,
+              int n,
+              int m,
               const arma::vec& Pi,
               const arma::mat& pp,
               const arma::mat& f_mseq) {
-  // Declaration
-  arma::vec tmp(m);
-
-  // Pass forward
-  alpha_bar.col(0) = f_mseq.col(0) % Pi;                                        // (\bar{alpha}_i(0))
-  cc_inv[0] = sum(alpha_bar.col(0));                                            // c_0^{-1}
-  alpha_hat.col(0) = alpha_bar.col(0) / cc_inv[0];                              // (\hat{alpha}_i(0))
+  // Forward pass (scaled)
+  double c;
+  for (int j = 0; j < m; j++) alpha_bar(j, 0) = f_mseq(j, 0) * Pi(j);
+  c = 0.0; for (int j = 0; j < m; j++) c += alpha_bar(j, 0);
+  cc_inv[0] = c;
+  for (int j = 0; j < m; j++) alpha_hat(j, 0) = alpha_bar(j, 0) / c;
   if (n > 1) {
     for (int k = 1; k < n; k++) {
+      c = 0.0;
       for (int i = 0; i < m; i++) {
-        alpha_bar(i, k) = f_mseq(i, k) * sum(pp.col(i) % alpha_hat.col(k - 1)); // (\bar{alpha}_i(k))
+        double s = 0.0;
+        for (int j = 0; j < m; j++) s += pp(j, i) * alpha_hat(j, k - 1);
+        alpha_bar(i, k) = f_mseq(i, k) * s;
+        c += alpha_bar(i, k);
       }
-      cc_inv[k] = sum(alpha_bar.col(k));                                        // c_k^{-1}
-      alpha_hat.col(k) = alpha_bar.col(k) / cc_inv[k];                          // (\hat{alpha}_i(0))
+      cc_inv[k] = c;
+      for (int i = 0; i < m; i++) alpha_hat(i, k) = alpha_bar(i, k) / c;
     }
   }
-
-  // Pass backward
-  beta_hat.col(n - 1) = beta_bar.col(n - 1) / cc_inv[n - 1];
+  // Backward pass (scaled); beta_bar[:, n-1] = 1 on entry
+  for (int j = 0; j < m; j++) beta_hat(j, n - 1) = beta_bar(j, n - 1) / cc_inv[n - 1];
   if (n > 1) {
     for (int k = n - 2; k >= 0; k--) {
       for (int i = 0; i < m; i++) {
-        beta_bar(i, k) =
-          sum(
-            (arma::vectorise(pp.row(i)) % f_mseq.col(k + 1)) %
-              beta_hat.col(k + 1)
-          );                                                                    // (\bar{beta}_i(k))
+        double s = 0.0;
+        for (int j = 0; j < m; j++) s += pp(i, j) * f_mseq(j, k + 1) * beta_hat(j, k + 1);
+        beta_bar(i, k) = s;
       }
-      beta_hat.col(k) = beta_bar.col(k) / cc_inv[k];                            // (\hat{beta}_i(k))
+      for (int i = 0; i < m; i++) beta_hat(i, k) = beta_bar(i, k) / cc_inv[k];
     }
   }
-
-  // Constructing the solution
+  // Pointwise MAP (single-pass argmax, no temporary vector)
   for (int k = 0; k < n; k++) {
-    tmp = alpha_hat.col(k) % beta_hat.col(k);
-    xx[k] = tmp.index_max();
+    int    best_j   = 0;
+    double best_val = alpha_hat(0, k) * beta_hat(0, k);
+    for (int j = 1; j < m; j++) {
+      const double val = alpha_hat(j, k) * beta_hat(j, k);
+      if (val > best_val) { best_val = val; best_j = j; }
+    }
+    xx[k] = best_j;
   }
 }
 
@@ -286,7 +290,6 @@ arma::mat K_segmentation_cpp(int K_max, int n, int m,
                              const arma::vec& logPi,
                              const arma::mat& qq,
                              const arma::mat& g_mseq) {
-  // Declaration
   int i_max, s_max, t;
   double curr_max, tmp;
   arma::mat xx(K_max, n), ss(K_max, n);
@@ -298,28 +301,13 @@ arma::mat K_segmentation_cpp(int K_max, int n, int m,
     for (int k = 1; k < n; k++) {
       for (int i = 0; i < m; i++) {
         for (int s = 0; s < K_max; s++) {
-          curr_max = R_NegInf;
-          i_max = m;
-          s_max = K_max;
-          tmp = R_NegInf;
+          curr_max = R_NegInf; i_max = m; s_max = K_max;
           for (int j = 0; j < m; j++) {
-            if (j == i) {
-              t = s;
-            } else {
-              t = s - 1;
-            }
-            if (t >= 0) {
-              tmp = gamma(j, k-1, t) + qq(j, i);
-            } else {
-              tmp = R_NegInf;
-            }
-            if (tmp > curr_max) {
-              curr_max = tmp;
-              i_max = j;
-              s_max = t;
-            }
+            t = (j == i) ? s : s - 1;
+            tmp = (t >= 0) ? gamma(j, k-1, t) + qq(j, i) : R_NegInf;
+            if (tmp > curr_max) { curr_max = tmp; i_max = j; s_max = t; }
           }
-          gamma(i, k, s) = curr_max + g_mseq(i, k);
+          gamma(i, k, s)   = curr_max + g_mseq(i, k);
           delta_x(i, k, s) = i_max;
           delta_s(i, k, s) = s_max;
         }
@@ -337,6 +325,5 @@ arma::mat K_segmentation_cpp(int K_max, int n, int m,
       ss(K, k) = delta_s(xx(K, k+1), k+1, ss(K, k+1));
     }
   }
-  // Return result
   return xx + 1;
 }

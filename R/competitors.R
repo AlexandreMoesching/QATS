@@ -283,11 +283,12 @@ PMAP.CPP <- function(par, n.rep = 1) {
 #'
 #' @return Estimated sequences, their probabilities and estimation time
 #' @export
-K_segmentation.R <- function(par, K_max = min(10, n)) {
+K_segmentation.R <- function(par, K_max = NULL) {
   # Load some variables
   m <- par$m
   mseq <- par$mseq
   n <- par$n
+  if (is.null(K_max)) K_max <- min(10L, n)
   logPi <- par$logPi
   qq <- par$qq
   g_mseq <- par$g_mseq
@@ -368,10 +369,11 @@ K_segmentation.R <- function(par, K_max = min(10, n)) {
 #'
 #' @return Estimated sequences, their probabilities and estimation time
 #' @export
-K_segmentation.CPP <- function(par, K_max = min(10, n)) {
+K_segmentation.CPP <- function(par, K_max = NULL) {
   # Load some variables
   m <- par$m
   n <- par$n
+  if (is.null(K_max)) K_max <- min(10L, n)
   logPi <- par$logPi
   qq <- par$qq
   g_mseq <- par$g_mseq

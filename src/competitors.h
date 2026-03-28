@@ -1,11 +1,10 @@
+#pragma once
 #include <RcppArmadillo.h>
 #include <chrono>
-using namespace Rcpp;
-using namespace std::chrono;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins("cpp17")]]
 
-List Viterbi_timer_cpp(double n_rep,
+Rcpp::List Viterbi_timer_cpp(int n_rep,
                        int n,
                        int m,
                        const arma::vec& logPi,
@@ -15,8 +14,8 @@ List Viterbi_timer_cpp(double n_rep,
 void Viterbi_cpp(arma::ivec& xx,
                  arma::imat& zeta,
                  arma::mat& rho,
-                 const int& n,
-                 const int& m,
+                 int n,
+                 int m,
                  const arma::vec& logPi,
                  const arma::mat& qq,
                  const arma::mat& g_mseq);
@@ -34,7 +33,7 @@ arma::vec G_classifier_cpp(double C1,
                            const arma::mat& f_mseq,
                            const arma::mat& g_mseq);
 
-List PMAP_timer_cpp(double n_rep,
+Rcpp::List PMAP_timer_cpp(int n_rep,
                     int n,
                     int m,
                     const arma::vec& Pi,
@@ -47,8 +46,8 @@ void PMAP_cpp(arma::ivec& xx,
               arma::mat& beta_hat,
               arma::mat& beta_bar,
               arma::vec& cc_inv,
-              const int& n,
-              const int& m,
+              int n,
+              int m,
               const arma::vec& Pi,
               const arma::mat& pp,
               const arma::mat& f_mseq);

@@ -168,6 +168,9 @@ display.1 <- function(xx.0, xx.1 = NULL, xx.2 = NULL,
 
   # 2D function to maximize
   if (!is.null(res2) && length(unique(c(res2[!is.na(res2)]))) > 1) {
+    if (!requireNamespace("plot3D", quietly = TRUE)) {
+      stop("Package 'plot3D' is required for 2D gain plots. Install it with install.packages('plot3D').")
+    }
     plot3D::image2D(res2,
       col = grDevices::hcl.colors(100, "Oslo"), # hcl.pals()
       # col = grDevices::topo.colors(100),
@@ -252,6 +255,9 @@ display.mat <- function(l, r, x0, par,
     )
   }
   if (display) {
+    if (!requireNamespace("plot3D", quietly = TRUE)) {
+      stop("Package 'plot3D' is required for 2D gain plots. Install it with install.packages('plot3D').")
+    }
     plot3D::image2D(res,
       # col = grDevices::topo.colors(100),
       col = grDevices::hcl.colors(100, "Oslo"), # hcl.pals()
