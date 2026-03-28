@@ -52,7 +52,7 @@ theme_set(
     )
 )
 
-set.seed(123)
+set.seed(4)
 
 # Model parameters
 m <- 5                       # number of hidden states
@@ -139,10 +139,12 @@ xx.0 <- par$xx
 # Collect results into a data frame
 run <- function(name, xx_hat, time_s) {
   data.frame(
-    Method     = name,
-    time       = time_s,
-    l0         = lp_norm(xx.0, xx_hat, 0),
-    V_measure  = V_measure(xx.0, xx_hat)
+    Method    = name,
+    time      = time_s,
+    l0        = lp_norm(xx.0, xx_hat, 0),
+    l1        = lp_norm(xx.0, xx_hat, 1),
+    l2        = lp_norm(xx.0, xx_hat, 2),
+    V_measure = V_measure(xx.0, xx_hat)
   )
 }
 
@@ -188,13 +190,21 @@ ggplot(main, aes(Method, time)) +
 
 ### Accuracy
 
-```{r bench-accuracy, fig.height=4}
-ggplot(results, aes(Method, V_measure)) +
+```{r bench-accuracy, fig.height=5, fig.width=9}
+# Reshape to long format for faceted display
+acc_long <- data.frame(
+  Method = rep(results$Method, 4),
+  Metric = rep(c("V-Measure", "l0 (error rate)", "l1", "l2"),
+               each = nrow(results)),
+  Value  = c(results$V_measure, results$l0, results$l1, results$l2)
+)
+acc_long$Metric <- factor(acc_long$Metric,
+                          levels = c("V-Measure", "l0 (error rate)", "l1", "l2"))
+
+ggplot(acc_long, aes(Method, Value)) +
   geom_col(fill = "#2ca25f", width = 0.6) +
-  geom_text(aes(label = sprintf("%.3f", V_measure)),
-            vjust = -0.4, size = 3) +
-  scale_y_continuous(limits = c(0, 1.1), breaks = seq(0, 1, 0.25)) +
-  labs(x = NULL, y = "V-Measure",
+  facet_wrap(~ Metric, scales = "free_y", nrow = 2) +
+  labs(x = NULL, y = NULL,
        title = expression("Accuracy comparison," ~ n == 10^6)) +
   theme(panel.grid.major.x = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
