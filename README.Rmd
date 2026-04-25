@@ -231,27 +231,39 @@ sim <- read_parquet(sim_file) |>
   mutate(p = K / (n - 1)) |>
   group_by(n, m, K, sigma, p) |>
   summarise(
-    ratio_q10 = quantile(time_Viterbi / time_QATS, 0.1),
     ratio_q50 = quantile(time_Viterbi / time_QATS, 0.5),
-    ratio_q90 = quantile(time_Viterbi / time_QATS, 0.9),
     .groups = "drop"
   ) |>
   mutate(
-    n_lab = paste0("n = 10^", log10(n - 1), " + 1"),
-    n_lab = factor(n_lab, levels = paste0("n = 10^", 3:6, " + 1")),
-    sigma_lab = paste0("sigma == ", sigma)
+    n_lab = factor(
+      n,
+      levels = c(1001, 10001, 100001, 1000001),
+      labels = c("italic(n) == 10^3 + 1", "italic(n) == 10^4 + 1",
+                 "italic(n) == 10^5 + 1", "italic(n) == 10^6 + 1")
+    ),
+    sigma_lab = factor(
+      sigma,
+      levels = c(0.1, 1.0),
+      labels = c("sigma == 0.1", "sigma == 1.0")
+    )
   )
 ```
 
-```{r scaling-plot, fig.height=4.5, fig.width=8.5}
+```{r scaling-plot, fig.height=5.5, fig.width=9}
 ggplot(sim, aes(x = p, y = ratio_q50,
                 colour = factor(m), fill = factor(m),
                 group = interaction(m, n_lab))) +
   geom_hline(yintercept = 1, colour = "grey50", linetype = "dashed") +
   geom_line(linewidth = 0.7) +
   geom_point(size = 1.2) +
-  scale_x_log10() +
-  scale_y_log10(breaks = c(0.5, 1, 2, 5, 10, 50, 200, 1000)) +
+  scale_x_log10(
+    breaks = 10^(-6:0),
+    labels = scales::label_log()
+  ) +
+  scale_y_log10(
+    breaks = 10^(0:3),
+    labels = scales::label_log()
+  ) +
   facet_grid(sigma_lab ~ n_lab, labeller = label_parsed) +
   labs(
     x = "Change-point density p = K / (n - 1)",
@@ -260,7 +272,10 @@ ggplot(sim, aes(x = p, y = ratio_q50,
     title = "QATS vs Viterbi runtime across the parameter grid",
     subtitle = "Above the dashed line: QATS is faster. 100 replications per cell."
   ) +
-  theme(legend.position = "bottom")
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 ```
 
 The speed advantage grows with the sequence length $n$ and is largest when change points are sparse (small $p$). At $n = 10^6 + 1$, QATS is typically two to three orders of magnitude faster than Viterbi. Across the entire grid, the median misclassification difference between the two decoders stays below $10^{-3}$.

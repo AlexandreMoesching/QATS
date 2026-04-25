@@ -244,8 +244,14 @@ ggplot(sim, aes(x = p, y = ratio_q50,
   geom_hline(yintercept = 1, colour = "grey50", linetype = "dashed") +
   geom_line(linewidth = 0.7) +
   geom_point(size = 1.2) +
-  scale_x_log10() +
-  scale_y_log10(breaks = c(0.5, 1, 2, 5, 10, 50, 200, 1000)) +
+  scale_x_log10(
+    breaks = 10^(-6:0),
+    labels = scales::label_log()
+  ) +
+  scale_y_log10(
+    breaks = 10^(0:3),
+    labels = scales::label_log()
+  ) +
   facet_grid(sigma_lab ~ n_lab, labeller = label_parsed) +
   labs(
     x = "Change-point density p = K / (n - 1)",
@@ -254,7 +260,10 @@ ggplot(sim, aes(x = p, y = ratio_q50,
     title = "QATS vs Viterbi runtime across the parameter grid",
     subtitle = "Above the dashed line: QATS is faster. 100 replications per cell."
   ) +
-  theme(legend.position = "bottom")
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
 ```
 
 <img src="man/figures/README-scaling-plot-1.png" alt="" width="90%" />
