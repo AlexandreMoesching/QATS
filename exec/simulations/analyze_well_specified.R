@@ -78,8 +78,8 @@ df_errors <- df |>
 
 # Display labels
 label_n     <- function(n) paste0("n = 1e", log10(n - 1), "+1")
-label_sigma <- function(s) if_else(s < 1, paste0("\u03C3 = ", s),
-                                   paste0("\u03C3 = ", s, ".0"))
+label_sigma <- function(s) if_else(s < 1, paste0("σ = ", s),
+                                   paste0("σ = ", s, ".0"))
 
 df_times  <- df_times  |> mutate(n_lab = label_n(n), sigma_lab = label_sigma(sigma))
 df_errors <- df_errors |> mutate(n_lab = label_n(n), sigma_lab = label_sigma(sigma))
@@ -93,12 +93,11 @@ error_labels <- c(l0 = "Misclassification rate",
 tmp <- df_times |>
   filter(name %in% c("Viterbi / QATS", "PMAP / QATS"))
 
-cairo_pdf("Plot_Time_Ratios.pdf", width = 6, height = 5)
-ggplot(tmp, aes(x = p, y = q50,
+plt <- ggplot(tmp, aes(x = p, y = q50,
                 colour = factor(m),
                 group = interaction(n, m, name, sigma))) +
   geom_hline(yintercept = 1) +
-  geom_line(linewidth = 1.5, alpha = 0.7) +
+  geom_line(linewidth = 0.6, alpha = 0.7) +
   geom_line(aes(linetype = n_lab), colour = "black", linewidth = 0.4) +
   scale_x_log10() +
   scale_y_log10(
@@ -109,7 +108,7 @@ ggplot(tmp, aes(x = p, y = q50,
   labs(x = "p = K / (n - 1)", y = "Time ratio (median)",
        colour = "m", linetype = "n") +
   theme_bw()
-dev.off()
+ggsave("Plot_Time_Ratios.pdf", plt, width = 6, height = 5, device = cairo_pdf)
 message("Wrote Plot_Time_Ratios.pdf")
 
 # ── D. Plot 2: Time ratios with bands (n = 1e6+1) ───────────────────────────
@@ -120,7 +119,7 @@ tmp_ratio <- df_times |>
 p1 <- ggplot(tmp_ratio, aes(x = p, colour = factor(m), fill = factor(m))) +
   geom_hline(yintercept = 1) +
   geom_ribbon(aes(ymin = q10, ymax = q90), alpha = 0.15, colour = NA) +
-  geom_line(aes(y = q50), linewidth = 1.5, alpha = 0.7) +
+  geom_line(aes(y = q50), linewidth = 0.4, alpha = 0.7) +
   scale_x_log10() +
   scale_y_log10(breaks = c(outer(c(1, 2, 5), 10^(-2:3)))) +
   coord_cartesian(ylim = c(0.5, NA)) +
@@ -134,15 +133,13 @@ tmp_abs <- df_times |>
 p2 <- ggplot(tmp_abs, aes(x = p, colour = factor(m), fill = factor(m),
                            group = interaction(m, name))) +
   geom_ribbon(aes(ymin = q10, ymax = q90), alpha = 0.15, colour = NA) +
-  geom_line(aes(y = q50, linetype = name), linewidth = 1.5, alpha = 0.7) +
+  geom_line(aes(y = q50, linetype = name), linewidth = 0.4, alpha = 0.7) +
   scale_x_log10() +
   scale_y_log10() +
   labs(x = "p", y = "Time [s]", colour = "m", fill = "m", linetype = "Method") +
   theme_bw()
 
-cairo_pdf("Plot_Time_Ratios_Bands.pdf", width = 7, height = 3)
-p1 + p2
-dev.off()
+ggsave("Plot_Time_Ratios_Bands.pdf", p1 + p2, width = 7, height = 3, device = cairo_pdf)
 message("Wrote Plot_Time_Ratios_Bands.pdf")
 
 # ── E. Plot 3: Errors (l0 and l2, n = 1e6+1) ────────────────────────────────
@@ -155,10 +152,9 @@ tmp <- df_errors |>
   ) |>
   mutate(error_label = error_labels[measurement])
 
-cairo_pdf("Plot_Errors.pdf", width = 7, height = 5)
-ggplot(tmp, aes(x = p, group = interaction(m, sigma, measurement, name))) +
+plt <- ggplot(tmp, aes(x = p, group = interaction(m, sigma, measurement, name))) +
   geom_ribbon(aes(ymin = q10, ymax = q90, fill = factor(m)), alpha = 0.15) +
-  geom_line(aes(y = q50, colour = factor(m)), linewidth = 1.5, alpha = 0.7) +
+  geom_line(aes(y = q50, colour = factor(m)), linewidth = 0.6, alpha = 0.7) +
   geom_line(aes(y = q50, linetype = name), colour = "black", linewidth = 0.4) +
   scale_x_log10() +
   scale_y_sqrt() +
@@ -166,7 +162,7 @@ ggplot(tmp, aes(x = p, group = interaction(m, sigma, measurement, name))) +
   labs(x = "p = K / (n - 1)", y = "Error (median)",
        colour = "m", fill = "m", linetype = "Method") +
   theme_bw()
-dev.off()
+ggsave("Plot_Errors.pdf", plt, width = 7, height = 5, device = cairo_pdf)
 message("Wrote Plot_Errors.pdf")
 
 # ── F. Plot 4: Error differences (QATS - PMAP) ─────────────────────────────
@@ -178,9 +174,8 @@ tmp <- df_errors |>
   ) |>
   mutate(error_label = error_labels[measurement])
 
-cairo_pdf("Plot_Errors_Differences.pdf", width = 7, height = 5)
-ggplot(tmp, aes(x = p, group = interaction(n, m, sigma, error_label))) +
-  geom_line(aes(y = q50, colour = factor(m)), linewidth = 1.5, alpha = 0.7) +
+plt <- ggplot(tmp, aes(x = p, group = interaction(n, m, sigma, error_label))) +
+  geom_line(aes(y = q50, colour = factor(m)), linewidth = 0.6, alpha = 0.7) +
   geom_line(aes(y = q50, linetype = n_lab), colour = "black", linewidth = 0.4) +
   scale_x_log10() +
   scale_y_sqrt() +
@@ -188,7 +183,7 @@ ggplot(tmp, aes(x = p, group = interaction(n, m, sigma, error_label))) +
   labs(x = "p = K / (n - 1)", y = "Error difference = QATS - PMAP (median)",
        colour = "m", linetype = "n") +
   theme_bw()
-dev.off()
+ggsave("Plot_Errors_Differences.pdf", plt, width = 7, height = 5, device = cairo_pdf)
 message("Wrote Plot_Errors_Differences.pdf")
 
 # ── G. Plot 5: Time vs error 2D density ─────────────────────────────────────
@@ -199,8 +194,7 @@ tmp <- df |>
          measurement %in% c("time", "l2")) |>
   pivot_wider(names_from = measurement)
 
-cairo_pdf("Plot_Time_Errors.pdf", width = 4, height = 3)
-ggplot(tmp, aes(x = l2, y = time)) +
+plt <- ggplot(tmp, aes(x = l2, y = time)) +
   stat_density_2d(aes(fill = after_stat(density)),
                   geom = "raster", contour = FALSE) +
   scale_fill_distiller(palette = 4, direction = 1) +
@@ -208,5 +202,5 @@ ggplot(tmp, aes(x = l2, y = time)) +
   scale_y_log10(expand = c(0, 0)) +
   labs(x = "Root mean squared error", y = "Time [s]", fill = "Density") +
   theme_bw()
-dev.off()
+ggsave("Plot_Time_Errors.pdf", plt, width = 4, height = 3, device = cairo_pdf)
 message("Wrote Plot_Time_Errors.pdf")

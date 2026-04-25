@@ -123,8 +123,7 @@ df_plot <- bind_rows(
 
 # ── E. Plot ─────────────────────────────────────────────────────────────────
 
-cairo_pdf("Plot_Error_Time_Misspec.pdf", width = 8.5, height = 8.5)
-df_plot |>
+plt <- df_plot |>
   filter(
     nu > 1,
     sigma == 1,
@@ -155,13 +154,12 @@ df_plot |>
   ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
-dev.off()
+ggsave("Plot_Error_Time_Misspec.pdf", plt, width = 8.5, height = 8.5, device = cairo_pdf)
 message("Wrote Plot_Error_Time_Misspec.pdf")
 
 # ── F. Supplementary: raw values ────────────────────────────────────────────
 
-cairo_pdf("Plot_Raw_Values_Misspec.pdf", width = 8.5, height = 8.5)
-df_plot |>
+plt <- df_plot |>
   filter(
     sigma == 1,
     m == 2,
@@ -191,5 +189,5 @@ df_plot |>
   ) +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
-dev.off()
+ggsave("Plot_Raw_Values_Misspec.pdf", plt, width = 8.5, height = 8.5, device = cairo_pdf)
 message("Wrote Plot_Raw_Values_Misspec.pdf")

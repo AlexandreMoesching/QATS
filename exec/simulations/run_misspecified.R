@@ -14,8 +14,8 @@
 
 source("helpers.R")
 
-run_misspecified <- function(cores   = 7,
-                             n_sim   = 100,
+run_misspecified <- function(cores   = 9,
+                             n_sim   = 1e4,
                              nu_vals = c(1, 2, 5, 10, 15, 20),
                              d0      = 3,
                              n_seeds = 3,
@@ -36,7 +36,10 @@ run_misspecified <- function(cores   = 7,
     close_stale_connections()
   })
 
-  handlers("cli")
+  handlers(handler_progress(
+    format = "[:bar] :percent | :current/:total | ETA :eta",
+    clear = FALSE
+  ))
 
   results <- with_progress({
     p <- progressor(steps = nrow(design))

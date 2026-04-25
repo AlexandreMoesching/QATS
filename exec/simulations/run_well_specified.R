@@ -13,7 +13,7 @@
 
 source("helpers.R")
 
-run_well_specified <- function(cores   = 7,
+run_well_specified <- function(cores   = 9,
                                n_sim   = 100,
                                d0      = 3,
                                n_seeds = 3,
@@ -41,7 +41,10 @@ run_well_specified <- function(cores   = 7,
     close_stale_connections()
   })
 
-  handlers("cli")
+  handlers(handler_progress(
+    format = "[:bar] :percent | :current/:total | ETA :eta",
+    clear = FALSE
+  ))
 
   results <- with_progress({
     p <- progressor(steps = nrow(design))

@@ -227,6 +227,44 @@ ggplot(acc_long, aes(Method, Value)) +
 QATS matches Viterbi in accuracy while running significantly faster on
 long sequences.
 
+## Scaling study
+
+The single-sequence benchmark above shows one realisation. To see how
+the speed advantage scales across many sequence lengths, change-point
+densities, and state-space sizes, we ran 100 replications for each
+combination of $m \in \{2, 3, 5\}$, $\sigma \in \{0.1, 1.0\}$,
+$n \in \{10^3+1, \dots, 10^6+1\}$, and
+$K = \{1, 2, 5\} \times 10^{0..7}$ (with $K < n / 50$). The full study
+is reproducible from `exec/simulations/run_well_specified.R`.
+
+``` r
+ggplot(sim, aes(x = p, y = ratio_q50,
+                colour = factor(m), fill = factor(m),
+                group = interaction(m, n_lab))) +
+  geom_hline(yintercept = 1, colour = "grey50", linetype = "dashed") +
+  geom_line(linewidth = 0.7) +
+  geom_point(size = 1.2) +
+  scale_x_log10() +
+  scale_y_log10(breaks = c(0.5, 1, 2, 5, 10, 50, 200, 1000)) +
+  facet_grid(sigma_lab ~ n_lab, labeller = label_parsed) +
+  labs(
+    x = "Change-point density p = K / (n - 1)",
+    y = "Median speed ratio: t(Viterbi) / t(QATS)",
+    colour = "m", fill = "m",
+    title = "QATS vs Viterbi runtime across the parameter grid",
+    subtitle = "Above the dashed line: QATS is faster. 100 replications per cell."
+  ) +
+  theme(legend.position = "bottom")
+```
+
+<img src="man/figures/README-scaling-plot-1.png" alt="" width="90%" />
+
+The speed advantage grows with the sequence length $n$ and is largest
+when change points are sparse (small $p$). At $n = 10^6 + 1$, QATS is
+typically two to three orders of magnitude faster than Viterbi. Across
+the entire grid, the median misclassification difference between the two
+decoders stays below $10^{-3}$.
+
 ## Step-by-step visualisation of QATS
 
 For small sequences ($n < 10^3$), `QATS.display()` provides an
