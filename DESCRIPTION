@@ -1,6 +1,6 @@
 Package: QATS
 Title: An Efficient Decoding Procedure for Hidden Markov Models
-Version: 1.3
+Version: 1.4
 Authors@R: c(
     person("Alexandre", "Moesching", 
     email = "alexandre.moesching@roche.com", 
@@ -32,16 +32,18 @@ URL: https://github.com/AlexandreMoesching/QATS.git
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Imports: 
+Imports:
+    ggplot2,
     graphics,
     grDevices,
-    plot3D,
     Rcpp,
     stats
 LinkingTo:
     Rcpp,
     RcppArmadillo
-Suggests: 
+Suggests:
+    plot3D,
+    scales,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3

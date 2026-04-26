@@ -1,5 +1,6 @@
+#pragma once
 #include <RcppArmadillo.h>
-using namespace Rcpp;
+// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins("cpp17")]]
 
 struct par0 {
@@ -23,7 +24,7 @@ par0 sample_norm_HMM_cpp(       int n, int m,
                                 const arma::mat& pp,
                                 const arma::vec& mu,
                                 const arma::vec& sigma);
-List sample_norm_HMM_export_cpp(int n, int m,
+Rcpp::List sample_norm_HMM_export_cpp(int n, int m,
                                 const arma::vec& Pi,
                                 const arma::mat& pp,
                                 const arma::vec& mu,

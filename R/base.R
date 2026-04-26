@@ -5,6 +5,7 @@ NULL
 
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
+#' @import ggplot2
 ## usethis namespace: end
 NULL
 
@@ -36,7 +37,7 @@ set.par <- function(
   GG <- matrix(0, nrow = m, ncol = n)
 
   if (emi.dist == "normal") {
-    stopifnot(!is.null(emi.param$sigma) && !is.null(emi.param$sigma))
+    stopifnot(!is.null(emi.param$mu) && !is.null(emi.param$sigma))
     for (i in 1:m) {
       f_mseq[i, ] <- stats::dnorm(yy, emi.param$mu[i], emi.param$sigma[i])
       g_mseq[i, ] <- stats::dnorm(yy, emi.param$mu[i], emi.param$sigma[i], log = TRUE)
@@ -99,7 +100,7 @@ sample.HMM <- function(
   if (length(Pi) == 0) {
     Pi <- rep(1, m) / m
   } else {
-    stopifnot(sum(Pi) == 1)
+    stopifnot(abs(sum(Pi) - 1) < 1e-9)
   }
   # Transition matrix
   if (!is.null(K)) {

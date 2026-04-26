@@ -2,7 +2,7 @@
 % Please edit documentation in R/log_prob.R
 \name{argH3}
 \alias{argH3}
-\title{Compute best path with three segments and jump at k1,k2 on the interval l:r}
+\title{Compute best path with three segments and jumps at k1, k2 on the interval l:r}
 \usage{
 argH3(l, k1, k2, r, x0, par)
 }
@@ -23,5 +23,5 @@ argH3(l, k1, k2, r, x0, par)
 Change points (\code{k1, k2}), state values and H3-value
 }
 \description{
-Compute best path with three segments and jump at k1,k2 on the interval l:r
+Compute best path with three segments and jumps at k1, k2 on the interval l:r
 }

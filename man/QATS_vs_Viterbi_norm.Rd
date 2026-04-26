@@ -37,7 +37,7 @@ QATS_vs_Viterbi_norm(
 
 \item{rotate}{Indicates whether or not the gain functions have to be rotated}
 
-\item{n_rep}{Number of repetition (for timing)}
+\item{n_rep}{Number of repetitions (for timing)}
 
 \item{n_sim}{Number of simulations}
 }

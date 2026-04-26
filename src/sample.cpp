@@ -1,4 +1,5 @@
 #include "sample.h"
+using namespace Rcpp;
 
 int SampleFromCumsumProbVec(int m, const arma::rowvec& CumsumProbVec) {
   double u = arma::randu();

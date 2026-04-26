@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // QATS_timer_cpp
-List QATS_timer_cpp(int d0, int n_seeds, bool rotate, double n_rep, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& GG, arma::ivec SS, int UU);
+List QATS_timer_cpp(int d0, int n_seeds, bool rotate, int n_rep, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& GG, arma::ivec SS, int UU);
 RcppExport SEXP _QATS_QATS_timer_cpp(SEXP d0SEXP, SEXP n_seedsSEXP, SEXP rotateSEXP, SEXP n_repSEXP, SEXP nSEXP, SEXP mSEXP, SEXP logPiSEXP, SEXP qqSEXP, SEXP GGSEXP, SEXP SSSEXP, SEXP UUSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -20,7 +20,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type d0(d0SEXP);
     Rcpp::traits::input_parameter< int >::type n_seeds(n_seedsSEXP);
     Rcpp::traits::input_parameter< bool >::type rotate(rotateSEXP);
-    Rcpp::traits::input_parameter< double >::type n_rep(n_repSEXP);
+    Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type logPi(logPiSEXP);
@@ -33,12 +33,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // Viterbi_timer_cpp
-List Viterbi_timer_cpp(double n_rep, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& g_mseq);
+List Viterbi_timer_cpp(int n_rep, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& g_mseq);
 RcppExport SEXP _QATS_Viterbi_timer_cpp(SEXP n_repSEXP, SEXP nSEXP, SEXP mSEXP, SEXP logPiSEXP, SEXP qqSEXP, SEXP g_mseqSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type n_rep(n_repSEXP);
+    Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type logPi(logPiSEXP);
@@ -49,15 +49,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // Viterbi_cpp
-void Viterbi_cpp(arma::ivec& xx, arma::imat& zeta, arma::mat& rho, const int& n, const int& m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& g_mseq);
+void Viterbi_cpp(arma::ivec& xx, arma::imat& zeta, arma::mat& rho, int n, int m, const arma::vec& logPi, const arma::mat& qq, const arma::mat& g_mseq);
 RcppExport SEXP _QATS_Viterbi_cpp(SEXP xxSEXP, SEXP zetaSEXP, SEXP rhoSEXP, SEXP nSEXP, SEXP mSEXP, SEXP logPiSEXP, SEXP qqSEXP, SEXP g_mseqSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::ivec& >::type xx(xxSEXP);
     Rcpp::traits::input_parameter< arma::imat& >::type zeta(zetaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type logPi(logPiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type qq(qqSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type g_mseq(g_mseqSEXP);
@@ -88,12 +88,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // PMAP_timer_cpp
-List PMAP_timer_cpp(double n_rep, int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
+List PMAP_timer_cpp(int n_rep, int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
 RcppExport SEXP _QATS_PMAP_timer_cpp(SEXP n_repSEXP, SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP f_mseqSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type n_rep(n_repSEXP);
+    Rcpp::traits::input_parameter< int >::type n_rep(n_repSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
@@ -104,7 +104,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // PMAP_cpp
-void PMAP_cpp(arma::ivec& xx, arma::mat& alpha_hat, arma::mat& alpha_bar, arma::mat& beta_hat, arma::mat& beta_bar, arma::vec& cc_inv, const int& n, const int& m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
+void PMAP_cpp(arma::ivec& xx, arma::mat& alpha_hat, arma::mat& alpha_bar, arma::mat& beta_hat, arma::mat& beta_bar, arma::vec& cc_inv, int n, int m, const arma::vec& Pi, const arma::mat& pp, const arma::mat& f_mseq);
 RcppExport SEXP _QATS_PMAP_cpp(SEXP xxSEXP, SEXP alpha_hatSEXP, SEXP alpha_barSEXP, SEXP beta_hatSEXP, SEXP beta_barSEXP, SEXP cc_invSEXP, SEXP nSEXP, SEXP mSEXP, SEXP PiSEXP, SEXP ppSEXP, SEXP f_mseqSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -114,8 +114,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat& >::type beta_hat(beta_hatSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type beta_bar(beta_barSEXP);
     Rcpp::traits::input_parameter< arma::vec& >::type cc_inv(cc_invSEXP);
-    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const int& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< int >::type m(mSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type Pi(PiSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type pp(ppSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type f_mseq(f_mseqSEXP);

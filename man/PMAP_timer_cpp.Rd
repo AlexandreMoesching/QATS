@@ -7,6 +7,8 @@
 PMAP_timer_cpp(n_rep, n, m, Pi, pp, f_mseq)
 }
 \arguments{
+\item{n_rep}{Number of repetitions (for timing)}
+
 \item{n}{Length of the observation sequence}
 
 \item{m}{Cardinality of the state space}

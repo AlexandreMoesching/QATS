@@ -11,7 +11,7 @@ display.0(xx.0, xx.1 = NULL, xx.2 = NULL, par, SS = NULL, k_new = NULL)
 
 \item{xx.1}{1st estimated path}
 
-\item{xx.2}{2nd 2stimated path}
+\item{xx.2}{2nd estimated path}
 
 \item{par}{Model parameters}
 

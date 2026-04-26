@@ -1,4 +1,6 @@
 #include "simulation.h"
+using namespace Rcpp;
+using namespace std::chrono;
 
 //' Generate a sample and estimate paths using QATS and different seeds
 //'
@@ -11,7 +13,7 @@
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
-//' @param n_rep Number of repetition (for timing)
+//' @param n_rep Number of repetitions (for timing)
 //' @param n_sim Number of simulations
 //'
 //' @return A matrix containing estimation times and errors for QATS
@@ -23,53 +25,40 @@ arma::mat QATS_nseeds_norm_cpp(int n, int m,
                                const arma::vec& mu, const arma::vec& sigma,
                                int d0, arma::ivec n_seeds, bool rotate, int n_rep,
                                int n_sim) {
-  // Declare sample variables
-  par0 par0;
-  par par;
-
-  // Declare estimation variables
+  par0 smp;
+  par  params;
   arma::ivec xx(n), zz(n), SS(n);
   int UU;
+  auto start = high_resolution_clock::now();
+  auto stop  = high_resolution_clock::now();
+  duration<double> time = stop - start;
 
-  // Declare timers
-  auto start = std::chrono::high_resolution_clock::now();
-  auto stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> time = stop - start;
-
-  // Declare output variables
-  int num_n_seeds = n_seeds.n_elem;
+  const int num_n_seeds = n_seeds.n_elem;
   arma::mat res(n_sim, 4 * num_n_seeds);
 
-  // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
-    // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
-    par = {m, par0.logPi, par0.qq, par0.GG};
+    smp    = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
+    params = {m, smp.logPi, smp.qq, smp.GG};
 
-    // Loop on the number of seeds
     for (int s = 0; s < num_n_seeds; s++) {
-      // Declare options
-      const opts opts = {d0, n_seeds[s], rotate};
+      const opts options = {d0, n_seeds[s], rotate};
 
-      // Estimate with QATS
-      UU = 1;
-      start = std::chrono::high_resolution_clock::now();
+      UU    = 1;
+      start = high_resolution_clock::now();
       for (int i = 0; i < n_rep; i++) {
-        QATS_cpp(xx, zz, SS, UU, n, par, opts);
+        QATS_cpp(xx, zz, SS, UU, n, params, options);
       }
-      stop = std::chrono::high_resolution_clock::now();
+      stop = high_resolution_clock::now();
       time = stop - start;
 
-      // Return results
-      res.row(j).subvec(s*4, s*4 + 3)
-        = {time.count()/n_rep,
-           lp_norm_cpp(par0.xx, xx, n, 0),
-           lp_norm_cpp(par0.xx, xx, n, 1),
-           lp_norm_cpp(par0.xx, xx, n, 2)};
+      res.row(j).subvec(s*4, s*4 + 3) = {
+        time.count() / n_rep,
+        lp_norm_cpp(smp.xx, xx, n, 0),
+        lp_norm_cpp(smp.xx, xx, n, 1),
+        lp_norm_cpp(smp.xx, xx, n, 2)
+      };
     }
   }
-
-  // Return
   return res;
 }
 
@@ -84,7 +73,7 @@ arma::mat QATS_nseeds_norm_cpp(int n, int m,
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
-//' @param n_rep Number of repetition (for timing)
+//' @param n_rep Number of repetitions (for timing)
 //' @param n_sim Number of simulations
 //'
 //' @return A list containing estimation times and errors for both QATS and
@@ -97,61 +86,50 @@ List QATS_vs_Viterbi_norm_cpp(int n, int m,
                               const arma::vec& mu, const arma::vec& sigma,
                               int d0, int n_seeds, bool rotate, int n_rep,
                               int n_sim) {
-  // Declare options
-  const opts opts = {d0, n_seeds, rotate};
-
-  // Declare sample variables
-  par0 par0;
-  par par;
-
-  // Declare estimation variables
+  const opts options = {d0, n_seeds, rotate};
+  par0 smp;
+  par  params;
   arma::ivec xx(n), zz(n), SS(n);
   arma::imat zeta(m, n);
-  arma::mat rho(m, n);
+  arma::mat  rho(m, n);
   int UU;
+  auto start = high_resolution_clock::now();
+  auto stop  = high_resolution_clock::now();
+  duration<double> time = stop - start;
 
-  // Declare timers
-  auto start = std::chrono::high_resolution_clock::now();
-  auto stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> time = stop - start;
-
-  // Declare output variables
   arma::mat res_Vit(n_sim, 4), res_QATS(n_sim, 4);
 
-  // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
-    // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
-    par = {m, par0.logPi, par0.qq, par0.GG};
+    smp    = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
+    params = {m, smp.logPi, smp.qq, smp.GG};
 
-    // Estimate with Viterbi
-    start = std::chrono::high_resolution_clock::now();
+    // Viterbi
+    start = high_resolution_clock::now();
     for (int i = 0; i < n_rep; i++) {
-      Viterbi_cpp(xx, zeta, rho, n, m, par0.logPi, par0.qq, par0.g_mseq);
+      Viterbi_cpp(xx, zeta, rho, n, m, smp.logPi, smp.qq, smp.g_mseq);
     }
-    stop = std::chrono::high_resolution_clock::now();
+    stop = high_resolution_clock::now();
     time = stop - start;
-    res_Vit.row(j) = {time.count()/n_rep,
-                      lp_norm_cpp(par0.xx, xx, n, 0),
-                      lp_norm_cpp(par0.xx, xx, n, 1),
-                      lp_norm_cpp(par0.xx, xx, n, 2)};
+    res_Vit.row(j) = {time.count() / n_rep,
+                      lp_norm_cpp(smp.xx, xx, n, 0),
+                      lp_norm_cpp(smp.xx, xx, n, 1),
+                      lp_norm_cpp(smp.xx, xx, n, 2)};
 
-    // Estimate with QATS
-    UU = 1;
-    start = std::chrono::high_resolution_clock::now();
+    // QATS
+    UU    = 1;
+    start = high_resolution_clock::now();
     for (int i = 0; i < n_rep; i++) {
-      QATS_cpp(xx, zz, SS, UU, n, par, opts);
+      QATS_cpp(xx, zz, SS, UU, n, params, options);
     }
-    stop = std::chrono::high_resolution_clock::now();
+    stop = high_resolution_clock::now();
     time = stop - start;
-    res_QATS.row(j) = {time.count()/n_rep,
-                       lp_norm_cpp(par0.xx, xx, n, 0),
-                       lp_norm_cpp(par0.xx, xx, n, 1),
-                       lp_norm_cpp(par0.xx, xx, n, 2)};
+    res_QATS.row(j) = {time.count() / n_rep,
+                       lp_norm_cpp(smp.xx, xx, n, 0),
+                       lp_norm_cpp(smp.xx, xx, n, 1),
+                       lp_norm_cpp(smp.xx, xx, n, 2)};
   }
 
-  // Return
-  return List::create(Named("res_Vit") = res_Vit,
+  return List::create(Named("res_Vit")  = res_Vit,
                       Named("res_QATS") = res_QATS);
 }
 
@@ -166,102 +144,89 @@ List QATS_vs_Viterbi_norm_cpp(int n, int m,
 //' @param d0 Smallest search interval
 //' @param n_seeds Number of seeds for the optimistic search
 //' @param rotate Indicates whether or not the gain functions have to be rotated
-//' @param n_rep Number of repetition (for timing)
+//' @param n_rep Number of repetitions (for timing)
 //' @param n_sim Number of simulations
 //'
-//' @return A list containing estimation times and errors for both QATS and
-//' Viterbi
+//' @return A list containing estimation times and errors for QATS, Viterbi,
+//' and PMAP
 //'
 //' @export
 // [[Rcpp::export(name = "compare_norm")]]
 List compare_norm_cpp(int n, int m,
-                     const arma::vec& Pi, const arma::mat& pp,
-                     const arma::vec& mu, const arma::vec& sigma,
-                     int d0, int n_seeds, bool rotate, int n_rep,
-                     int n_sim) {
-  // Declare options
-  const opts opts = {d0, n_seeds, rotate};
-
-  // Declare sample variables
-  par0 par0;
-  par par;
-
-  // Declare estimation variables
+                      const arma::vec& Pi, const arma::mat& pp,
+                      const arma::vec& mu, const arma::vec& sigma,
+                      int d0, int n_seeds, bool rotate, int n_rep,
+                      int n_sim) {
+  const opts options = {d0, n_seeds, rotate};
+  par0 smp;
+  par  params;
   arma::ivec xx(n), zz(n), SS(n);
   arma::imat zeta(m, n);
-  arma::mat rho(m, n);
-  arma::mat alpha_hat(m, n), alpha_bar(m, n);
-  arma::mat  beta_hat(m, n),  beta_bar(m, n, arma::fill::ones);
-  arma::vec cc_inv(n);
+  arma::mat  rho(m, n);
+  arma::mat  alpha_hat(m, n), alpha_bar(m, n);
+  arma::mat   beta_hat(m, n),  beta_bar(m, n, arma::fill::ones);
+  arma::vec  cc_inv(n);
   int UU;
+  auto start = high_resolution_clock::now();
+  auto stop  = high_resolution_clock::now();
+  duration<double> time = stop - start;
 
-  // Declare timers
-  auto start = std::chrono::high_resolution_clock::now();
-  auto stop = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> time = stop - start;
-
-  // Declare output variables
   arma::mat res_Vit(n_sim, 4), res_PMAP(n_sim, 4), res_QATS(n_sim, 4);
 
-  // Loop over the number of simulations
   for (int j = 0; j < n_sim; j++) {
-    // Generate a sample
-    par0 = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
-    par = {m, par0.logPi, par0.qq, par0.GG};
+    smp    = sample_norm_HMM_cpp(n, m, Pi, pp, mu, sigma);
+    params = {m, smp.logPi, smp.qq, smp.GG};
 
-    // Estimate with Viterbi
-    start = std::chrono::high_resolution_clock::now();
+    // Viterbi
+    start = high_resolution_clock::now();
     for (int i = 0; i < n_rep; i++) {
-      Viterbi_cpp(xx, zeta, rho,
-                  n, m, par0.logPi, par0.qq, par0.g_mseq);
+      Viterbi_cpp(xx, zeta, rho, n, m, smp.logPi, smp.qq, smp.g_mseq);
     }
-    stop = std::chrono::high_resolution_clock::now();
+    stop = high_resolution_clock::now();
     time = stop - start;
-    res_Vit.row(j) = {time.count()/n_rep,
-                      lp_norm_cpp(par0.xx, xx, n, 0),
-                      lp_norm_cpp(par0.xx, xx, n, 1),
-                      lp_norm_cpp(par0.xx, xx, n, 2)};
+    res_Vit.row(j) = {time.count() / n_rep,
+                      lp_norm_cpp(smp.xx, xx, n, 0),
+                      lp_norm_cpp(smp.xx, xx, n, 1),
+                      lp_norm_cpp(smp.xx, xx, n, 2)};
 
-    // Estimate with PMAP
-    start = std::chrono::high_resolution_clock::now();
+    // PMAP — reset beta_bar to ones before each call
+    beta_bar.ones();
+    start = high_resolution_clock::now();
     for (int i = 0; i < n_rep; i++) {
+      beta_bar.col(n-1).ones();   // backward initialisation
       PMAP_cpp(xx, alpha_hat, alpha_bar, beta_hat, beta_bar, cc_inv,
-               n, m, par0.Pi, par0.pp, par0.f_mseq);
+               n, m, smp.Pi, smp.pp, smp.f_mseq);
     }
-    stop = std::chrono::high_resolution_clock::now();
+    stop = high_resolution_clock::now();
     time = stop - start;
-    res_PMAP.row(j) = {time.count()/n_rep,
-                       lp_norm_cpp(par0.xx, xx, n, 0),
-                       lp_norm_cpp(par0.xx, xx, n, 1),
-                       lp_norm_cpp(par0.xx, xx, n, 2)};
+    res_PMAP.row(j) = {time.count() / n_rep,
+                       lp_norm_cpp(smp.xx, xx, n, 0),
+                       lp_norm_cpp(smp.xx, xx, n, 1),
+                       lp_norm_cpp(smp.xx, xx, n, 2)};
 
-    // Estimate with QATS
-    UU = 1;
-    start = std::chrono::high_resolution_clock::now();
+    // QATS
+    UU    = 1;
+    start = high_resolution_clock::now();
     for (int i = 0; i < n_rep; i++) {
-      QATS_cpp(xx, zz, SS, UU, n, par, opts);
+      QATS_cpp(xx, zz, SS, UU, n, params, options);
     }
-    stop = std::chrono::high_resolution_clock::now();
+    stop = high_resolution_clock::now();
     time = stop - start;
-    res_QATS.row(j) = {time.count()/n_rep,
-                       lp_norm_cpp(par0.xx, xx, n, 0),
-                       lp_norm_cpp(par0.xx, xx, n, 1),
-                       lp_norm_cpp(par0.xx, xx, n, 2)};
+    res_QATS.row(j) = {time.count() / n_rep,
+                       lp_norm_cpp(smp.xx, xx, n, 0),
+                       lp_norm_cpp(smp.xx, xx, n, 1),
+                       lp_norm_cpp(smp.xx, xx, n, 2)};
   }
 
-  // Return
-  return List::create(Named("res_Vit") = res_Vit,
+  return List::create(Named("res_Vit")  = res_Vit,
                       Named("res_PMAP") = res_PMAP,
                       Named("res_QATS") = res_QATS);
 }
 
-double lp_norm_cpp(arma::ivec& xx_0, arma::ivec& xx_1, int n, int p) {
-  double res;
+double lp_norm_cpp(const arma::ivec& xx_0, const arma::ivec& xx_1, int n, int p) {
   if (p > 0) {
-    res = pow(sum(pow(abs(xx_1 - xx_0), p)), 1.0/p) / n;
+    return pow(sum(pow(abs(arma::conv_to<arma::vec>::from(xx_1 - xx_0)), p)), 1.0/p) / n;
   } else {
-    arma::uvec tmp = find(xx_1 != xx_0);
-    res = tmp.n_elem * 1.0 / n;
+    return (double)arma::accu(xx_1 != xx_0) / n;
   }
-  return res;
 }

@@ -2,36 +2,28 @@
 % Please edit documentation in R/QATS.R
 \name{OS}
 \alias{OS}
-\title{Basic one-dimensional optimistic search}
+\title{Basic one-dimensional optimistic (ternary) search}
 \usage{
 OS(L, R, d0, fun, argfun, M = -1L)
 }
 \arguments{
-\item{L}{Integer scalar: left boundary (inclusive).}
+\item{L}{Integer: left boundary (inclusive).}
 
-\item{R}{Integer scalar: right boundary (inclusive), must satisfy R > L.}
+\item{R}{Integer: right boundary (inclusive), must satisfy R > L.}
 
-\item{d0}{Integer scalar ≥ 1: minimum search window width.}
+\item{d0}{Integer ≥ 1: minimum search window width before full scan.}
 
-\item{fun}{Function of one integer argument k; returns a numeric score.}
+\item{fun}{Function of one integer k returning a numeric score.}
 
-\item{argfun}{Function of one integer argument k; returns a list with at least:
-\describe{
-\item{h_star}{numeric score at k}
-\item{i_star}{integer or vector of associated state(s)}
-}}
+\item{argfun}{Function of one integer k returning a list with at least
+\code{h_star} (numeric score) and \code{i_star} (associated states).}
 
-\item{M}{Integer scalar: initial probe position; if < 0, computed automatically.}
+\item{M}{Integer: initial probe position; computed automatically if < 0.}
 }
 \value{
-A list with elements:
-\describe{
-\item{k_star}{integer, best breakpoint(s)}
-\item{i_star}{integer or vector, associated state(s)}
-\item{h_star}{numeric, maximum score}
-}
+A list with \code{k_star}, \code{i_star}, and \code{h_star}.
 }
 \description{
-Perform a ternary search over an interval \eqn{L}{L} to \eqn{R}{R} using an objective and an argument-returning function.
+Basic one-dimensional optimistic (ternary) search
 }
 \keyword{internal}

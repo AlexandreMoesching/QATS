@@ -22,8 +22,8 @@ QATS_timer_cpp <- function(d0, n_seeds, rotate, n_rep, n, m, logPi, qq, GG, SS, 
 
 #' Viterbi decoder, timing in C++
 #'
+#' @param n_rep Number of repetitions (for timing)
 #' @param n Length of the observation sequence
-#' @param n_rep Number of repetition (for timing)
 #' @param m Cardinality of the state space
 #' @param logPi Initial log-distribution
 #' @param qq Log-transition matrix
@@ -38,13 +38,15 @@ Viterbi_timer_cpp <- function(n_rep, n, m, logPi, qq, g_mseq) {
 #' Viterbi decoder
 #'
 #' @param xx Pre-declared sequence to be updated
+#' @param zeta Back-pointer matrix (m x n)
+#' @param rho Score matrix (m x n)
 #' @param n Length of the observation sequence
 #' @param m Cardinality of the state space
 #' @param logPi Initial log-distribution
 #' @param qq Log-transition matrix
 #' @param g_mseq Log-densities of the emission distributions
 #'
-#' @return Estimated sequence
+#' @return Updates xx, zeta, and rho in place
 #' @keywords internal
 Viterbi_cpp <- function(xx, zeta, rho, n, m, logPi, qq, g_mseq) {
     invisible(.Call(`_QATS_Viterbi_cpp`, xx, zeta, rho, n, m, logPi, qq, g_mseq))
@@ -73,6 +75,7 @@ G_classifier_cpp <- function(C1, C2, C3, C4, n, m, Pi, logPi, pp, qq, f_mseq, g_
 
 #' PMAP-classifier, timing in C++
 #'
+#' @param n_rep Number of repetitions (for timing)
 #' @param n Length of the observation sequence
 #' @param m Cardinality of the state space
 #' @param Pi Initial distribution
@@ -145,7 +148,7 @@ sample_norm_HMM_export_cpp <- function(n, m, Pi, pp, mu, sigma) {
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
-#' @param n_rep Number of repetition (for timing)
+#' @param n_rep Number of repetitions (for timing)
 #' @param n_sim Number of simulations
 #'
 #' @return A matrix containing estimation times and errors for QATS
@@ -166,7 +169,7 @@ QATS_nseeds_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
-#' @param n_rep Number of repetition (for timing)
+#' @param n_rep Number of repetitions (for timing)
 #' @param n_sim Number of simulations
 #'
 #' @return A list containing estimation times and errors for both QATS and
@@ -188,11 +191,11 @@ QATS_vs_Viterbi_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n
 #' @param d0 Smallest search interval
 #' @param n_seeds Number of seeds for the optimistic search
 #' @param rotate Indicates whether or not the gain functions have to be rotated
-#' @param n_rep Number of repetition (for timing)
+#' @param n_rep Number of repetitions (for timing)
 #' @param n_sim Number of simulations
 #'
-#' @return A list containing estimation times and errors for both QATS and
-#' Viterbi
+#' @return A list containing estimation times and errors for QATS, Viterbi,
+#' and PMAP
 #'
 #' @export
 compare_norm <- function(n, m, Pi, pp, mu, sigma, d0, n_seeds, rotate, n_rep, n_sim) {
