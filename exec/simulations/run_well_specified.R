@@ -14,7 +14,7 @@
 source("helpers.R")
 
 run_well_specified <- function(cores   = 9,
-                               n_sim   = 100,
+                               n_sim   = 1e3,
                                d0      = 3,
                                n_seeds = 3,
                                rotate  = FALSE) {

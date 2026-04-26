@@ -15,7 +15,7 @@
 source("helpers.R")
 
 run_misspecified <- function(cores   = 9,
-                             n_sim   = 1e4,
+                             n_sim   = 1e3,
                              nu_vals = c(1, 2, 5, 10, 15, 20),
                              d0      = 3,
                              n_seeds = 3,
